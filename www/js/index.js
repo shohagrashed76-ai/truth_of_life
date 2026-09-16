@@ -44,12 +44,13 @@ function loadSurahList() {
 function renderSurahList(surahs) {
     var appDiv = document.getElementById('app');
     var html = '<h2 class="header">THE TRUTH OF LIFE</h2>';
-    html += '<input type="text" id="searchInput" class="search-box" placeholder="Search Surah..." onkeyup="filterSurahs()">';
+    html += '<input type="text" id="searchInput" class="search-box" placeholder="Search Surah Name, Number or Sajdah..." onkeyup="filterSurahs()">';
     html += '<div id="surahListContainer">';
 
     surahs.forEach(surah => {
+        var hasSajdah = sajdahAyahs[surah.number] ? ' <span style="color:#d32f2f; font-weight:bold;">[۩ Sajdah]</span>' : '';
         html += `<div class="surah-card" onclick="loadSurahDetail(${surah.number})">
-            <div class="surah-title">${surah.number}. ${surah.englishName} (${surah.name})</div>
+            <div class="surah-title">${surah.number}. ${surah.englishName} (${surah.name}) ${hasSajdah}</div>
             <div style="color:gray; font-size:14px; margin-top:5px;">Meaning: ${surah.englishNameTranslation} | Ayahs: ${surah.numberOfAyahs}</div>
         </div>`;
     });
@@ -59,18 +60,22 @@ function renderSurahList(surahs) {
 }
 
 function filterSurahs() {
-    var query = document.getElementById('searchInput').value.toLowerCase();
-    var filtered = allSurahs.filter(surah => 
-        surah.englishName.toLowerCase().includes(query) || 
-        surah.number.toString().includes(query) ||
-        surah.name.includes(query)
-    );
+    var query = document.getElementById('searchInput').value.toLowerCase().trim();
+    
+    var filtered = allSurahs.filter(surah => {
+        var isSajdahMatch = query === 'sajdah' && sajdahAyahs[surah.number];
+        return surah.englishName.toLowerCase().includes(query) || 
+               surah.number.toString() === query ||
+               surah.name.includes(query) ||
+               isSajdahMatch;
+    });
 
     var container = document.getElementById('surahListContainer');
     var html = '';
     filtered.forEach(surah => {
+        var hasSajdah = sajdahAyahs[surah.number] ? ' <span style="color:#d32f2f; font-weight:bold;">[۩ Sajdah]</span>' : '';
         html += `<div class="surah-card" onclick="loadSurahDetail(${surah.number})">
-            <div class="surah-title">${surah.number}. ${surah.englishName} (${surah.name})</div>
+            <div class="surah-title">${surah.number}. ${surah.englishName} (${surah.name}) ${hasSajdah}</div>
             <div style="color:gray; font-size:14px; margin-top:5px;">Meaning: ${surah.englishNameTranslation} | Ayahs: ${surah.numberOfAyahs}</div>
         </div>`;
     });
