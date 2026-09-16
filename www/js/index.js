@@ -1,5 +1,4 @@
 var allSurahs = [];
-var targetAyahToScroll = null;
 
 const sajdahAyahs = {
     "7": [206],
@@ -43,10 +42,9 @@ function loadSurahList() {
 }
 
 function renderSurahList(surahs) {
-    targetAyahToScroll = null;
     var appDiv = document.getElementById('app');
     var html = '<h2 class="header">THE TRUTH OF LIFE</h2>';
-    html += '<input type="text" id="searchInput" class="search-box" placeholder="e.g. Baqarah 7, 2:7, or Sajdah..." onkeyup="filterSurahs()">';
+    html += '<input type="text" id="searchInput" class="search-box" placeholder="Search Surah (e.g. Baqara, Baqara 7, 36:12)..." onkeyup="filterSurahs()">';
     html += '<div id="surahListContainer">';
 
     surahs.forEach(surah => {
@@ -63,30 +61,45 @@ function renderSurahList(surahs) {
 
 function filterSurahs() {
     var rawQuery = document.getElementById('searchInput').value.toLowerCase().trim();
-    
-    // Check if user entered "Surah Ayah" like "baqara 7" or "2 7" or "2:7"
-    var parts = rawQuery.split(/[\s:]+/);
-    var surahQuery = parts[0] || '';
-    var ayahQuery = parts.length > 1 ? parseInt(parts[1]) : null;
+    if (!rawQuery) {
+        renderSurahListContent(allSurahs);
+        return;
+    }
 
-    var cleanSurahQuery = surahQuery.replace(/[^a-z0-9]/g, '');
+    // Check if there is a space/colon followed by numbers at the end (for Ayah search like "baqara 7")
+    var ayahMatch = rawQuery.match(/[\s:]+(\d+)$/);
+    var targetAyah = ayahMatch ? parseInt(ayahMatch[1]) : null;
+
+    // Remove numbers and prefixes ("al", "surah") for clean surah name matching
+    var surahSearchText = rawQuery.replace(/[\s:]+\d+$/, '').replace(/\bsurah\b/g, '').replace(/\bal\b/g, '').replace(/[^a-z0-9]/g, '').trim();
+    var surahSearchNum = rawQuery.match(/^(\d+)/) ? parseInt(rawQuery.match(/^(\d+)/)[1]) : null;
 
     var filtered = allSurahs.filter(surah => {
-        var cleanEnglishName = surah.englishName.toLowerCase().replace(/[^a-z0-9]/g, '');
-        var isSajdahMatch = rawQuery === 'sajdah' && sajdahAyahs[surah.number];
-        
-        return cleanEnglishName.includes(cleanSurahQuery) || 
-               surah.number.toString() === cleanSurahQuery ||
-               surah.name.includes(surahQuery) ||
-               isSajdahMatch;
+        var cleanSurahName = surah.englishName.toLowerCase().replace(/\bal\b/g, '').replace(/[^a-z0-9]/g, '');
+        var isSajdahMatch = rawQuery.includes('sajdah') && sajdahAyahs[surah.number];
+
+        var isNameMatch = surahSearchText.length > 0 && cleanSurahName.includes(surahSearchText);
+        var isNumberMatch = surahSearchNum && surah.number === surahSearchNum;
+
+        return isNameMatch || isNumberMatch || isSajdahMatch;
     });
 
+    renderSurahListContent(filtered, targetAyah);
+}
+
+function renderSurahListContent(surahs, targetAyah = null) {
     var container = document.getElementById('surahListContainer');
     var html = '';
-    filtered.forEach(surah => {
+
+    if (surahs.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:gray; padding:20px;">No Surah found</p>';
+        return;
+    }
+
+    surahs.forEach(surah => {
         var hasSajdah = sajdahAyahs[surah.number] ? ' <span style="color:#d32f2f; font-weight:bold;">[۩ Sajdah]</span>' : '';
-        var clickAction = ayahQuery ? `loadSurahDetail(${surah.number}, ${ayahQuery})` : `loadSurahDetail(${surah.number})`;
-        var targetAyahBadge = ayahQuery ? ` <span style="color:#1a237e; font-size:12px;">(Go to Ayah ${ayahQuery})</span>` : '';
+        var clickAction = targetAyah ? `loadSurahDetail(${surah.number}, ${targetAyah})` : `loadSurahDetail(${surah.number})`;
+        var targetAyahBadge = targetAyah ? ` <span style="color:#1a237e; font-weight:bold; font-size:13px;">→ Go to Ayah ${targetAyah}</span>` : '';
 
         html += `<div class="surah-card" onclick="${clickAction}">
             <div class="surah-title">${surah.number}. ${surah.englishName} (${surah.name}) ${hasSajdah} ${targetAyahBadge}</div>
@@ -122,13 +135,15 @@ function loadSurahDetail(surahNumber, targetAyah = null) {
             var sajdahTag = isSajdah ? '<span style="background-color: #d32f2f; color: white; padding: 3px 8px; border-radius: 4px; font-size: 13px; margin-left: 10px;">[Sajdah Ayah - Wajib]</span>' : '';
 
             var boxStyle = '';
+            var boxId = '';
             if (isTargetAyah) {
-                boxStyle = 'style="border: 3px solid #1a237e; background-color: #e8eaf6;" id="targetAyahBox"';
+                boxStyle = 'style="border: 3px solid #1a237e; background-color: #e8eaf6;"';
+                boxId = 'id="targetAyahBox"';
             } else if (isSajdah) {
                 boxStyle = 'style="border-left: 6px solid #d32f2f; background-color: #fffde7;"';
             }
 
-            html += `<div class="ayah-box" ${boxStyle}>
+            html += `<div class="ayah-box" ${boxStyle} ${boxId}>
                 <div class="arabic-text">${ayah.text} <span style="font-size:18px; color:#1a237e;">(${ayahNum})</span></div>
                 <div class="bangla-text"><b>Bangla:</b> ${bnText} ${sajdahTag}</div>
             </div>`;
@@ -142,7 +157,7 @@ function loadSurahDetail(surahNumber, targetAyah = null) {
                 if (elem) {
                     elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
-            }, 300);
+            }, 400);
         } else {
             window.scrollTo(0, 0);
         }
