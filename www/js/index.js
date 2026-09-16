@@ -1,20 +1,9 @@
 var allSurahs = [];
 
 const sajdahAyahs = {
-    "7": [206],
-    "13": [15],
-    "16": [50],
-    "17": [109],
-    "19": [58],
-    "22": [18, 77],
-    "25": [60],
-    "27": [26],
-    "32": [15],
-    "38": [24],
-    "41": [38],
-    "53": [62],
-    "84": [21],
-    "96": [19]
+    "7": [206], "13": [15], "16": [50], "17": [109], "19": [58],
+    "22": [18, 77], "25": [60], "27": [26], "32": [15], "38": [24],
+    "41": [38], "53": [62], "84": [21], "96": [19]
 };
 
 document.addEventListener('deviceready', onDeviceReady, false);
@@ -45,6 +34,13 @@ function renderSurahList(surahs) {
     var appDiv = document.getElementById('app');
     var html = '<h2 class="header">THE TRUTH OF LIFE</h2>';
     html += '<input type="text" id="searchInput" class="search-box" placeholder="Search Surah (e.g. Baqara, Baqara 7, 36:12)..." onkeyup="filterSurahs()">';
+    
+    // Bottom Navigation Switcher
+    html += `<div style="display:flex; justify-content:space-around; margin-bottom:15px; border-bottom:2px solid #ddd; padding-bottom:5px;">
+        <button style="flex:1; padding:10px; background:#1a237e; color:white; border:none; border-radius:5px; margin-right:5px; font-weight:bold;" onclick="loadSurahList()">📖 Quran Reader</button>
+        <button style="flex:1; padding:10px; background:#2e7d32; color:white; border:none; border-radius:5px; margin-left:5px; font-weight:bold;" onclick="loadPrayerTimes()">🕌 Prayer Times</button>
+    </div>`;
+
     html += '<div id="surahListContainer">';
 
     surahs.forEach(surah => {
@@ -66,11 +62,9 @@ function filterSurahs() {
         return;
     }
 
-    // Check if there is a space/colon followed by numbers at the end (for Ayah search like "baqara 7")
     var ayahMatch = rawQuery.match(/[\s:]+(\d+)$/);
     var targetAyah = ayahMatch ? parseInt(ayahMatch[1]) : null;
 
-    // Remove numbers and prefixes ("al", "surah") for clean surah name matching
     var surahSearchText = rawQuery.replace(/[\s:]+\d+$/, '').replace(/\bsurah\b/g, '').replace(/\bal\b/g, '').replace(/[^a-z0-9]/g, '').trim();
     var surahSearchNum = rawQuery.match(/^(\d+)/) ? parseInt(rawQuery.match(/^(\d+)/)[1]) : null;
 
@@ -165,4 +159,50 @@ function loadSurahDetail(surahNumber, targetAyah = null) {
     .catch(err => {
         appDiv.innerHTML = '<h3 style="color:red; text-align:center;">Failed to load Surah.</h3>';
     });
+}
+
+// Prayer Times Functionality
+function loadPrayerTimes() {
+    var appDiv = document.getElementById('app');
+    appDiv.innerHTML = '<h3 style="text-align:center; padding:20px;">Fetching Prayer Times...</h3>';
+
+    // Default: Dhaka, Bangladesh
+    fetch('https://api.aladhan.com/v1/timingsByCity?city=Dhaka&country=Bangladesh&method=1')
+        .then(res => res.json())
+        .then(data => {
+            var timings = data.data.timings;
+            var dateInfo = data.data.date.readable;
+            var hijriDate = data.data.date.hijri.day + ' ' + data.data.date.hijri.month.en + ' ' + data.data.date.hijri.year;
+
+            var html = '<button class="btn-back" onclick="renderSurahList(allSurahs)">← Back to Quran Reader</button>';
+            html += '<h2 style="text-align:center; color:#2e7d32;">🕌 Daily Prayer Times</h2>';
+            html += `<p style="text-align:center; color:gray; font-size:14px; margin-bottom:15px;">Date: ${dateInfo} | Hijri: ${hijriDate}</p>`;
+
+            var prayerList = [
+                { name: "Fajr (ফজর)", start: timings.Fajr, end: timings.Sunrise },
+                { name: "Dhuhr (জোহর)", start: timings.Dhuhr, end: timings.Asr },
+                { name: "Asr (আসর)", start: timings.Asr, end: timings.Sunset },
+                { name: "Maghrib (মাগরিব)", start: timings.Maghrib, end: timings.Isha },
+                { name: "Isha (ইশা)", start: timings.Isha, end: timings.Fajr }
+            ];
+
+            html += '<div style="display:flex; flex-direction:column; gap:10px;">';
+            prayerList.forEach(p => {
+                html += `<div style="padding:15px; background:#f1f8e9; border-left:5px solid #2e7d32; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="font-size:16px; color:#1b5e20;">${p.name}</strong>
+                    </div>
+                    <div style="text-align:right; font-size:14px; color:#333;">
+                        <div><b>Start:</b> ${p.start}</div>
+                        <div><b>Ends:</b> ${p.end}</div>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+
+            appDiv.innerHTML = html;
+        })
+        .catch(err => {
+            appDiv.innerHTML = '<h3 style="color:red; text-align:center;">Failed to fetch prayer times. Check Internet.</h3>';
+        });
 }
