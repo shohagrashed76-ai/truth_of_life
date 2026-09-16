@@ -1,12 +1,13 @@
 document.addEventListener('deviceready', onDeviceReady, false);
 
-function onDeviceReady() {
-    loadSurahList();
+if (!window.cordova) {
+    document.addEventListener('DOMContentLoaded', onDeviceReady);
 }
 
-// Fallback in case deviceready doesn't trigger in browser test
-if (!window.cordova) {
-    document.addEventListener('DOMContentLoaded', loadSurahList);
+var allSurahs = [];
+
+function onDeviceReady() {
+    loadSurahList();
 }
 
 function loadSurahList() {
@@ -16,18 +17,48 @@ function loadSurahList() {
     fetch('https://api.alquran.cloud/v1/surah')
         .then(function(res) { return res.json(); })
         .then(function(data) {
-            var html = '<h2 style="text-align:center; color:#1a237e;">Al-Quran</h2>';
-            data.data.forEach(function(surah) {
-                html += '<div class="surah-card" onclick="loadSurahDetail(' + surah.number + ')">' +
-                    '<div class="surah-title">' + surah.number + '. ' + surah.englishName + ' (' + surah.name + ')</div>' +
-                    '<div style="color:gray; font-size:14px; margin-top:5px;">Meaning: ' + surah.englishNameTranslation + ' | Ayahs: ' + surah.numberOfAyahs + '</div>' +
-                '</div>';
-            });
-            appDiv.innerHTML = html;
+            allSurahs = data.data;
+            renderSurahList(allSurahs);
         })
         .catch(function(err) {
             appDiv.innerHTML = '<h3 style="color:red; text-align:center;">Internet Connection Required!</h3>';
         });
+}
+
+function renderSurahList(surahs) {
+    var appDiv = document.getElementById('app');
+    var html = '<h2 class="header">Al-Quran</h2>';
+    html += '<input type="text" id="searchInput" class="search-box" placeholder="Search Surah (Name or Number)..." onkeyup="filterSurahs()">';
+    html += '<div id="surahListContainer">';
+
+    surahs.forEach(function(surah) {
+        html += '<div class="surah-card" onclick="loadSurahDetail(' + surah.number + ')">' +
+            '<div class="surah-title">' + surah.number + '. ' + surah.englishName + ' (' + surah.name + ')</div>' +
+            '<div style="color:gray; font-size:14px; margin-top:5px;">Meaning: ' + surah.englishNameTranslation + ' | Ayahs: ' + surah.numberOfAyahs + '</div>' +
+        '</div>';
+    });
+
+    html += '</div>';
+    appDiv.innerHTML = html;
+}
+
+function filterSurahs() {
+    var query = document.getElementById('searchInput').value.toLowerCase();
+    var filtered = allSurahs.filter(function(surah) {
+        return surah.englishName.toLowerCase().includes(query) || 
+               surah.number.toString().includes(query) ||
+               surah.name.includes(query);
+    });
+
+    var container = document.getElementById('surahListContainer');
+    var html = '';
+    filtered.forEach(function(surah) {
+        html += '<div class="surah-card" onclick="loadSurahDetail(' + surah.number + ')">' +
+            '<div class="surah-title">' + surah.number + '. ' + surah.englishName + ' (' + surah.name + ')</div>' +
+            '<div style="color:gray; font-size:14px; margin-top:5px;">Meaning: ' + surah.englishNameTranslation + ' | Ayahs: ' + surah.numberOfAyahs + '</div>' +
+        '</div>';
+    });
+    container.innerHTML = html;
 }
 
 function loadSurahDetail(surahNumber) {
@@ -42,7 +73,7 @@ function loadSurahDetail(surahNumber) {
         var arabicData = results[0].data;
         var bnData = results[1].data;
 
-        var html = '<button class="btn-back" onclick="loadSurahList()">← Back to List</button>';
+        var html = '<button class="btn-back" onclick="renderSurahList(allSurahs)">← Back to List</button>';
         html += '<h2 style="text-align:center; color:#1a237e;">' + arabicData.name + '</h2>';
         html += '<p style="text-align:center; color:gray;">' + arabicData.englishName + ' - ' + arabicData.numberOfAyahs + ' Ayahs</p>';
 
