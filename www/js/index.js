@@ -60,13 +60,16 @@ function renderSurahList(surahs) {
 }
 
 function filterSurahs() {
-    var query = document.getElementById('searchInput').value.toLowerCase().trim();
-    
+    var rawQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+    var cleanQuery = rawQuery.replace(/[^a-z0-9]/g, '');
+
     var filtered = allSurahs.filter(surah => {
-        var isSajdahMatch = query === 'sajdah' && sajdahAyahs[surah.number];
-        return surah.englishName.toLowerCase().includes(query) || 
-               surah.number.toString() === query ||
-               surah.name.includes(query) ||
+        var cleanEnglishName = surah.englishName.toLowerCase().replace(/[^a-z0-9]/g, '');
+        var isSajdahMatch = rawQuery === 'sajdah' && sajdahAyahs[surah.number];
+        
+        return cleanEnglishName.includes(cleanQuery) || 
+               surah.number.toString() === rawQuery ||
+               surah.name.includes(rawQuery) ||
                isSajdahMatch;
     });
 
