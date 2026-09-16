@@ -1,13 +1,19 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.truthoflife.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>THE TRUTH OF LIFE</name>
-    <description>
-        A sample Apache Cordova application that responds to the deviceready event.
-    </description>
-    <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
-        Apache Cordova Team
-    </author>
+    <description>An Islamic Quran App providing Surah reading and Bangla translation.</description>
+    <author email="dev@truthoflife.com" href="https://github.com/shohagrashed76-ai">Truth Of Life Team</author>
     <content src="index.html" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
+    <icon src="www/img/logo.png" />
+    <platform name="android">
+        <icon src="www/img/logo.png" density="ldpi" />
+        <icon src="www/img/logo.png" density="mdpi" />
+        <icon src="www/img/logo.png" density="hdpi" />
+        <icon src="www/img/logo.png" density="xhdpi" />
+        <icon src="www/img/logo.png" density="xxhdpi" />
+        <icon src="www/img/logo.png" density="xxxhdpi" />
+    </platform>
+    <preference name="Orientation" value="portrait" />
 </widget>
