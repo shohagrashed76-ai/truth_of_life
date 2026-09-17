@@ -2,150 +2,76 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Muslim Pro Style App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quran Reader</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <!-- Dynamic Header -->
-    <header class="mp-header">
-        <div class="user-info">
-            <i class="fa-solid fa-circle-user avatar"></i>
-            <div>
-                <span class="date-hijri" id="hijri-date">4 Rabi' II 1448 AH</span>
-            </div>
+    <!-- Top Header -->
+    <header class="reader-header">
+        <div class="h-left">
+            <i class="fa-solid fa-arrow-left"></i>
+            <h2 id="surah-title">Al-Faatiha <i class="fa-solid fa-caret-down"></i></h2>
         </div>
-        <div class="header-icons">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <i class="fa-regular fa-bell"></i>
+        <div class="h-right">
+            <i class="fa-solid fa-circle-info"></i>
+            <i class="fa-solid fa-gear"></i>
         </div>
     </header>
 
-    <!-- Main Dynamic Content Area -->
-    <main id="app-content">
+    <div class="reading-goal-bar">
+        <span>1. The Opener</span>
+        <span>Reading goal: 0/5 mins <i class="fa-regular fa-circle"></i> <i class="fa-solid fa-chevron-right"></i></span>
+    </div>
 
-        <!-- TAB 1: HOME -->
-        <section id="tab-home" class="page-tab active">
-            <!-- Next Prayer Big Card -->
-            <div class="card next-prayer-card">
-                <div class="np-top">
-                    <span class="badge">Now</span>
-                    <span class="p-name" id="current-p-name">Isha'a 🌙</span>
-                    <span class="location"><i class="fa-solid fa-location-dot"></i> Kaliganj</span>
-                </div>
-                <h1 class="p-main-time" id="current-p-time">19:21</h1>
-                <p class="p-countdown" id="p-countdown">6h 11m to Fajr (tomorrow)</p>
-            </div>
+    <!-- Surah Header Banner -->
+    <div class="surah-banner-container">
+        <div class="surah-banner">
+            <h1>الفاتحة</h1>
+        </div>
+    </div>
 
-            <!-- Horizontal Stories / Highlights -->
-            <div class="stories-row">
-                <div class="story-circle active"><div class="img-ph"></div></div>
-                <div class="story-circle"><div class="img-ph"></div></div>
-                <div class="story-circle"><div class="img-ph"></div></div>
-                <div class="story-circle"><div class="img-ph"></div></div>
-            </div>
+    <!-- Ayats Container -->
+    <main class="ayats-list">
 
-            <!-- Features Quick Grid -->
-            <div class="section-title">
-                <h3>Features</h3>
-            </div>
-            <div class="quick-features">
-                <div class="feat-item"><div class="feat-icon"><i class="fa-solid fa-compass"></i></div><span>Qibla</span></div>
-                <div class="feat-item"><div class="feat-icon"><i class="fa-solid fa-hands-praying"></i></div><span>Duas</span></div>
-                <div class="feat-item"><div class="feat-icon"><i class="fa-solid fa-dhikr"></i></div><span>Tasbih</span></div>
-                <div class="feat-item"><div class="feat-icon"><i class="fa-solid fa-book-open"></i></div><span>Tracker</span></div>
-            </div>
-        </section>
+        <!-- Aya 1 -->
+        <div class="aya-card">
+            <span class="aya-badge">Aya 1:1 <i class="fa-solid fa-chevron-down"></i></span>
+            <div class="ar-text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ﴿١﴾</div>
+            <div class="bn-text">শুরু করছি আল্লাহর নামে যিনি পরম করুণাময়, অতি দয়ালু।</div>
+        </div>
 
-        <!-- TAB 2: PRAYERS -->
-        <section id="tab-prayers" class="page-tab">
-            <div class="card tracker-card">
-                <div class="tracker-left">
-                    <strong>Mark all as prayed</strong>
-                    <p>0/5 tracked</p>
-                </div>
-                <i class="fa-regular fa-circle-check check-all"></i>
-            </div>
+        <!-- Aya 2 -->
+        <div class="aya-card">
+            <span class="aya-badge">Aya 1:2 <i class="fa-solid fa-chevron-down"></i></span>
+            <div class="ar-text">الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ﴿٢﴾</div>
+            <div class="bn-text">যাবতীয় প্রশংসা আল্লাহ তাআলার যিনি সকল সৃষ্টি জগতের পালনকর্তা।</div>
+        </div>
 
-            <div class="prayer-list-box">
-                <div class="p-row"><span><i class="fa-regular fa-circle"></i> Fajr ✨</span><strong>04:35</strong></div>
-                <div class="p-row"><span>Sunrise ☀️</span><strong>05:51</strong></div>
-                <div class="p-row"><span><i class="fa-regular fa-circle"></i> Dhuhr ☀️</span><strong>11:58</strong></div>
-                <div class="p-row"><span><i class="fa-regular fa-circle"></i> Asr ⛅</span><strong>16:22</strong></div>
-                <div class="p-row"><span><i class="fa-regular fa-circle"></i> Maghrib 🌅</span><strong>18:05</strong></div>
-                <div class="p-row active-prayer"><span><i class="fa-regular fa-circle-dot"></i> Isha'a 🌙</span><strong>19:21</strong></div>
-            </div>
-        </section>
-
-        <!-- TAB 3: QURAN -->
-        <section id="tab-quran" class="page-tab">
-            <div class="sub-nav">
-                <button class="sub-btn active" onclick="switchQuranSub('read')">Read</button>
-                <button class="sub-btn" onclick="switchQuranSub('learn')">Learn</button>
-                <button class="sub-btn" onclick="switchQuranSub('progress')">My Progress</button>
-            </div>
-
-            <div id="q-read-section">
-                <div class="recents-header">
-                    <span>Recents</span>
-                </div>
-                <div class="recents-scroll">
-                    <div class="recent-chip">
-                        <span class="ar-title">الفاتحة</span>
-                        <p>Al-Faatiha</p>
-                    </div>
-                    <div class="recent-chip">
-                        <span class="ar-title">الضحى</span>
-                        <p>Ad-Dhuhaa</p>
-                    </div>
-                </div>
-
-                <div class="section-title">
-                    <h3>Sura list</h3>
-                </div>
-                <div class="sura-list" id="sura-list-container">
-                    <!-- Surahs injected dynamically -->
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 4: UMMAH -->
-        <section id="tab-ummah" class="page-tab">
-            <div class="ummah-post">
-                <div class="u-header">
-                    <div class="u-avatar">MP</div>
-                    <div>
-                        <strong>muslimpro</strong>
-                        <span class="time">2d</span>
-                    </div>
-                </div>
-                <p class="u-text">Assalamu Alaikum! 🌍 Drop the flag emoji of the country you're in right now in the comments.</p>
-            </div>
-        </section>
+        <!-- Aya 3 -->
+        <div class="aya-card">
+            <span class="aya-badge">Aya 1:3 <i class="fa-solid fa-chevron-down"></i></span>
+            <div class="ar-text">الرَّحْمَٰنِ الرَّحِيمِ ﴿٣﴾</div>
+            <div class="bn-text">যিনি অত্যন্ত মেহেরবান ও দয়ালু।</div>
+        </div>
 
     </main>
 
-    <!-- Bottom Navigation Bar (Muslim Pro Exact) -->
-    <nav class="bottom-nav">
-        <button class="nav-item active" onclick="switchTab('home', this)">
-            <i class="fa-solid fa-house"></i>
-            <span>Home</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('prayers', this)">
-            <i class="fa-solid fa-person-praying"></i>
-            <span>Prayers</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('quran', this)">
-            <i class="fa-solid fa-book-quran"></i>
-            <span>Quran</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('ummah', this)">
-            <i class="fa-solid fa-users"></i>
-            <span>Ummah</span>
-        </button>
-    </nav>
+    <!-- Floating Audio Player Bar -->
+    <div class="floating-audio-player">
+        <button class="play-btn" id="playBtn" onclick="togglePlay()"><i class="fa-solid fa-play"></i></button>
+        <div class="reciter-info">
+            <span class="track-title">-</span>
+            <span class="reciter-name">Saad Al-Ghamdi</span>
+        </div>
+        <div class="player-controls">
+            <span class="speed">1x</span>
+            <i class="fa-solid fa-backward-step"></i>
+            <i class="fa-solid fa-forward-step"></i>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
