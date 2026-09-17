@@ -1,62 +1,151 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE TRUTH OF LIFE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Muslim Pro Style App</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <header class="app-header">
-        <div class="header-content">
-            <h1>THE TRUTH OF LIFE</h1>
-            <p id="current-date">Loading Hijri & Gregorian Date...</p>
+
+    <!-- Dynamic Header -->
+    <header class="mp-header">
+        <div class="user-info">
+            <i class="fa-solid fa-circle-user avatar"></i>
+            <div>
+                <span class="date-hijri" id="hijri-date">4 Rabi' II 1448 AH</span>
+            </div>
+        </div>
+        <div class="header-icons">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <i class="fa-regular fa-bell"></i>
         </div>
     </header>
 
-    <main class="main-container">
-        <!-- Muslim Pro Style Prayer Dashboard -->
-        <section class="card prayer-card">
-            <div class="card-header">
-                <h2>Today's Prayer Times</h2>
+    <!-- Main Dynamic Content Area -->
+    <main id="app-content">
+
+        <!-- TAB 1: HOME -->
+        <section id="tab-home" class="page-tab active">
+            <!-- Next Prayer Big Card -->
+            <div class="card next-prayer-card">
+                <div class="np-top">
+                    <span class="badge">Now</span>
+                    <span class="p-name" id="current-p-name">Isha'a 🌙</span>
+                    <span class="location"><i class="fa-solid fa-location-dot"></i> Kaliganj</span>
+                </div>
+                <h1 class="p-main-time" id="current-p-time">19:21</h1>
+                <p class="p-countdown" id="p-countdown">6h 11m to Fajr (tomorrow)</p>
             </div>
-            <div class="prayer-grid">
-                <div class="prayer-box">
-                    <span class="p-name">Fajr</span>
-                    <strong class="p-time" id="fajr">--:--</strong>
+
+            <!-- Horizontal Stories / Highlights -->
+            <div class="stories-row">
+                <div class="story-circle active"><div class="img-ph"></div></div>
+                <div class="story-circle"><div class="img-ph"></div></div>
+                <div class="story-circle"><div class="img-ph"></div></div>
+                <div class="story-circle"><div class="img-ph"></div></div>
+            </div>
+
+            <!-- Features Quick Grid -->
+            <div class="section-title">
+                <h3>Features</h3>
+            </div>
+            <div class="quick-features">
+                <div class="feat-item"><div class="feat-icon"><i class="fa-solid fa-compass"></i></div><span>Qibla</span></div>
+                <div class="feat-item"><div class="feat-icon"><i class="fa-solid fa-hands-praying"></i></div><span>Duas</span></div>
+                <div class="feat-item"><div class="feat-icon"><i class="fa-solid fa-dhikr"></i></div><span>Tasbih</span></div>
+                <div class="feat-item"><div class="feat-icon"><i class="fa-solid fa-book-open"></i></div><span>Tracker</span></div>
+            </div>
+        </section>
+
+        <!-- TAB 2: PRAYERS -->
+        <section id="tab-prayers" class="page-tab">
+            <div class="card tracker-card">
+                <div class="tracker-left">
+                    <strong>Mark all as prayed</strong>
+                    <p>0/5 tracked</p>
                 </div>
-                <div class="prayer-box">
-                    <span class="p-name">Dhuhr</span>
-                    <strong class="p-time" id="dhuhr">--:--</strong>
+                <i class="fa-regular fa-circle-check check-all"></i>
+            </div>
+
+            <div class="prayer-list-box">
+                <div class="p-row"><span><i class="fa-regular fa-circle"></i> Fajr ✨</span><strong>04:35</strong></div>
+                <div class="p-row"><span>Sunrise ☀️</span><strong>05:51</strong></div>
+                <div class="p-row"><span><i class="fa-regular fa-circle"></i> Dhuhr ☀️</span><strong>11:58</strong></div>
+                <div class="p-row"><span><i class="fa-regular fa-circle"></i> Asr ⛅</span><strong>16:22</strong></div>
+                <div class="p-row"><span><i class="fa-regular fa-circle"></i> Maghrib 🌅</span><strong>18:05</strong></div>
+                <div class="p-row active-prayer"><span><i class="fa-regular fa-circle-dot"></i> Isha'a 🌙</span><strong>19:21</strong></div>
+            </div>
+        </section>
+
+        <!-- TAB 3: QURAN -->
+        <section id="tab-quran" class="page-tab">
+            <div class="sub-nav">
+                <button class="sub-btn active" onclick="switchQuranSub('read')">Read</button>
+                <button class="sub-btn" onclick="switchQuranSub('learn')">Learn</button>
+                <button class="sub-btn" onclick="switchQuranSub('progress')">My Progress</button>
+            </div>
+
+            <div id="q-read-section">
+                <div class="recents-header">
+                    <span>Recents</span>
                 </div>
-                <div class="prayer-box">
-                    <span class="p-name">Asr</span>
-                    <strong class="p-time" id="asr">--:--</strong>
+                <div class="recents-scroll">
+                    <div class="recent-chip">
+                        <span class="ar-title">الفاتحة</span>
+                        <p>Al-Faatiha</p>
+                    </div>
+                    <div class="recent-chip">
+                        <span class="ar-title">الضحى</span>
+                        <p>Ad-Dhuhaa</p>
+                    </div>
                 </div>
-                <div class="prayer-box">
-                    <span class="p-name">Maghrib</span>
-                    <strong class="p-time" id="maghrib">--:--</strong>
+
+                <div class="section-title">
+                    <h3>Sura list</h3>
                 </div>
-                <div class="prayer-box">
-                    <span class="p-name">Isha</span>
-                    <strong class="p-time" id="isha">--:--</strong>
+                <div class="sura-list" id="sura-list-container">
+                    <!-- Surahs injected dynamically -->
                 </div>
             </div>
         </section>
 
-        <!-- Quran Surah Reader & Navigation -->
-        <section class="card quran-card">
-            <div class="reader-nav">
-                <button id="prev-btn" onclick="loadPreviousSurah()">❮ Prev</button>
-                <h2 id="surah-title">Surah 1</h2>
-                <button id="next-btn" onclick="loadNextSurah()">Next ❯</button>
-            </div>
-            <div id="surah-content" class="content-box">
-                <p class="swipe-hint">💡 Swipe left or right to switch Surah</p>
-                <div id="verses-container"></div>
+        <!-- TAB 4: UMMAH -->
+        <section id="tab-ummah" class="page-tab">
+            <div class="ummah-post">
+                <div class="u-header">
+                    <div class="u-avatar">MP</div>
+                    <div>
+                        <strong>muslimpro</strong>
+                        <span class="time">2d</span>
+                    </div>
+                </div>
+                <p class="u-text">Assalamu Alaikum! 🌍 Drop the flag emoji of the country you're in right now in the comments.</p>
             </div>
         </section>
+
     </main>
+
+    <!-- Bottom Navigation Bar (Muslim Pro Exact) -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('home', this)">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('prayers', this)">
+            <i class="fa-solid fa-person-praying"></i>
+            <span>Prayers</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('quran', this)">
+            <i class="fa-solid fa-book-quran"></i>
+            <span>Quran</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('ummah', this)">
+            <i class="fa-solid fa-users"></i>
+            <span>Ummah</span>
+        </button>
+    </nav>
 
     <script src="script.js"></script>
 </body>

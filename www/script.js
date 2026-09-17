@@ -1,69 +1,42 @@
-let currentSurahIndex = 1;
-
-function loadPrayerTimes() {
-    const today = new Date();
-    const dateElem = document.getElementById('current-date');
-    if (dateElem) dateElem.innerText = today.toDateString();
-
-    fetch('https://api.aladhan.com/v1/timingsByCity?city=Dhaka&country=Bangladesh&method=1')
-        .then(res => res.json())
-        .then(data => {
-            if (data && data.data && data.data.timings) {
-                const t = data.data.timings;
-                if(document.getElementById('fajr')) document.getElementById('fajr').innerText = t.Fajr;
-                if(document.getElementById('dhuhr')) document.getElementById('dhuhr').innerText = t.Dhuhr;
-                if(document.getElementById('asr')) document.getElementById('asr').innerText = t.Asr;
-                if(document.getElementById('maghrib')) document.getElementById('maghrib').innerText = t.Maghrib;
-                if(document.getElementById('isha')) document.getElementById('isha').innerText = t.Isha;
-            }
-        })
-        .catch(err => console.error(err));
-}
-
-function loadNextSurah() {
-    if (currentSurahIndex < 114) {
-        currentSurahIndex++;
-        updateSurahDisplay();
-    }
-}
-
-function loadPreviousSurah() {
-    if (currentSurahIndex > 1) {
-        currentSurahIndex--;
-        updateSurahDisplay();
-    }
-}
-
-function updateSurahDisplay() {
-    const titleElem = document.getElementById('surah-title');
-    if (titleElem) titleElem.innerText = "Surah " + currentSurahIndex;
-}
-
-let touchStartX = 0;
-let touchStartY = 0;
-
-document.addEventListener('touchstart', e => {
-    touchStartX = e.changedTouches[0].screenX;
-    touchStartY = e.changedTouches[0].screenY;
-});
-
-document.addEventListener('touchend', e => {
-    let touchEndX = e.changedTouches[0].screenX;
-    let touchEndY = e.changedTouches[0].screenY;
+// Tab Switching
+function switchTab(tabId, el) {
+    document.querySelectorAll('.page-tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
     
-    let diffX = touchEndX - touchStartX;
-    let diffY = touchEndY - touchStartY;
+    document.getElementById('tab-' + tabId).classList.add('active');
+    el.classList.add('active');
+}
 
-    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-        if (diffX < 0) {
-            loadNextSurah();
-        } else {
-            loadPreviousSurah();
-        }
-    }
-});
+// Quran Sub Navigation
+function switchQuranSub(type) {
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+// Render Surah List
+const surahs = [
+    { id: 1, name: "Al-Faatiha", meaning: "The Opener", ar: "الفاتحة" },
+    { id: 2, name: "Al-Baqara", meaning: "The Cow", ar: "البقرة" },
+    { id: 3, name: "Aal-i-Imraan", meaning: "Family of Imran", ar: "آل عمران" },
+    { id: 4, name: "An-Nisaa", meaning: "The Women", ar: "النساء" },
+    { id: 5, name: "Al-Maa'ida", meaning: "The Table Spread", ar: "المائدة" }
+];
+
+function renderSurahs() {
+    const container = document.getElementById('sura-list-container');
+    if(!container) return;
+    
+    container.innerHTML = surahs.map(s => `
+        <div class="sura-item">
+            <div>
+                <strong>${s.id}. ${s.name}</strong>
+                <p style="font-size:0.8rem; color:var(--text-muted);">${s.meaning}</p>
+            </div>
+            <span style="font-size:1.2rem; font-family:serif;">${s.ar}</span>
+        </div>
+    `).join('');
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadPrayerTimes();
-    updateSurahDisplay();
+    renderSurahs();
 });

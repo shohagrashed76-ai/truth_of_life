@@ -1,3 +1,13 @@
+:root {
+    --bg-main: #03231c;
+    --card-bg: #07382e;
+    --card-light: #0d4a3d;
+    --accent-gold: #d97706;
+    --accent-green: #10b981;
+    --text-white: #ffffff;
+    --text-muted: #9ca3af;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,111 +16,248 @@
 }
 
 body {
-    background-color: #062c22;
-    color: #ffffff;
-    padding: 12px;
-    user-select: none;
+    background-color: var(--bg-main);
+    color: var(--text-white);
+    padding-bottom: 70px;
 }
 
-.app-header {
-    background: linear-gradient(135deg, #094032, #062c22);
-    text-align: center;
-    padding: 20px 10px;
-    border-radius: 16px;
-    margin-bottom: 16px;
-    border: 1px solid #105d49;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-}
-
-.app-header h1 {
-    color: #d97706;
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-}
-
-#current-date {
-    color: #a7f3d0;
-    font-size: 0.85rem;
-    margin-top: 6px;
-}
-
-.card {
-    background: #094032;
-    border-radius: 16px;
-    padding: 16px;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    border: 1px solid #0f5241;
-}
-
-.card-header h2 {
-    font-size: 1rem;
-    color: #f59e0b;
-    text-align: center;
-    margin-bottom: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-}
-
-.prayer-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
-}
-
-.prayer-box {
-    background: #0b5240;
-    padding: 10px 2px;
-    border-radius: 10px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    border: 1px solid #146c55;
-}
-
-.p-name {
-    font-size: 0.7rem;
-    color: #ecfdf5;
-}
-
-.p-time {
-    font-size: 0.8rem;
-    color: #fbbf24;
-    margin-top: 4px;
-    font-weight: bold;
-}
-
-.reader-nav {
+.mp-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    padding: 16px;
+    background: var(--bg-main);
 }
 
-.reader-nav button {
-    background: #d97706;
-    color: #ffffff;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-#surah-title {
-    font-size: 1.1rem;
-    color: #ffffff;
+.avatar {
+    font-size: 28px;
+    color: #38bdf8;
 }
 
-.swipe-hint {
+.date-hijri {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.header-icons {
+    display: flex;
+    gap: 16px;
+    font-size: 18px;
+    color: var(--text-muted);
+}
+
+/* Tabs Toggle */
+.page-tab {
+    display: none;
+    padding: 0 16px;
+}
+
+.page-tab.active {
+    display: block;
+}
+
+/* Card General */
+.card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Next Prayer Card */
+.next-prayer-card {
+    position: relative;
+    background: linear-gradient(135deg, #07382e, #0a4d3f);
+}
+
+.np-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.badge {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 2px 8px;
+    border-radius: 6px;
     font-size: 0.75rem;
-    color: #6ee7b7;
-    text-align: center;
+}
+
+.p-name {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.location {
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.p-main-time {
+    font-size: 2.4rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.p-countdown {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* Story Circles */
+.stories-row {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.story-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-green);
+    padding: 2px;
+    flex-shrink: 0;
+}
+
+.img-ph {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #1e293b;
+}
+
+/* Quick Features */
+.quick-features {
+    display: flex;
+    justify-content: space-around;
     margin-top: 10px;
 }
 
-.content-box {
-    min-height: 180px;
+.feat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+}
+
+.feat-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--card-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #f59e0b;
+}
+
+/* Prayer Tracker */
+.tracker-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.check-all {
+    font-size: 24px;
+    color: var(--accent-green);
+}
+
+.prayer-list-box {
+    background: var(--card-bg);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.p-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.95rem;
+}
+
+.p-row.active-prayer {
+    background: var(--card-light);
+    border-left: 4px solid var(--accent-green);
+}
+
+/* Quran Sub-nav */
+.sub-nav {
+    display: flex;
+    gap: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 16px;
+}
+
+.sub-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    padding: 10px 0;
+    font-size: 0.95rem;
+    font-weight: bold;
+}
+
+.sub-btn.active {
+    color: var(--text-white);
+    border-bottom: 2px solid var(--text-white);
+}
+
+.sura-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    margin-bottom: 8px;
+}
+
+/* Bottom Nav */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: #021a15;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 999;
+}
+
+.nav-item {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+}
+
+.nav-item i {
+    font-size: 18px;
+}
+
+.nav-item.active {
+    color: var(--accent-green);
 }
