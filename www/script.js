@@ -6,13 +6,13 @@ let touchEndY = 0;
 document.addEventListener('touchstart', function(e) {
     touchStartX = e.changedTouches[0].screenX;
     touchStartY = e.changedTouches[0].screenY;
-}, { passive: false });
+});
 
 document.addEventListener('touchend', function(e) {
     touchEndX = e.changedTouches[0].screenX;
     touchEndY = e.changedTouches[0].screenY;
     handleSwipe();
-}, { passive: false });
+});
 
 function handleSwipe() {
     let diffX = touchEndX - touchStartX;
@@ -39,7 +39,7 @@ function fetchPrayerTimes() {
                 if (prayerContainer) {
                     prayerContainer.innerHTML = `
                         <div class="prayer-card">
-                            <h3>Prayer Times (Dhaka)</h3>
+                            <h3>Prayer Times</h3>
                             <p>Fajr: ${timings.Fajr}</p>
                             <p>Dhuhr: ${timings.Dhuhr}</p>
                             <p>Asr: ${timings.Asr}</p>
@@ -50,7 +50,7 @@ function fetchPrayerTimes() {
                 }
             }
         })
-        .catch(err => console.error('Prayer times fetch error:', err));
+        .catch(err => console.error('Error fetching prayer times:', err));
 }
 
 document.addEventListener('DOMContentLoaded', function() {
