@@ -13,7 +13,9 @@
     <header class="reader-header">
         <div class="h-left">
             <i class="fa-solid fa-arrow-left"></i>
-            <h2 id="surah-title">Al-Faatiha <i class="fa-solid fa-caret-down"></i></h2>
+            <select id="surahSelect" onchange="loadSurah(this.value)">
+                <!-- 114 Surahs will load here -->
+            </select>
         </div>
         <div class="h-right">
             <i class="fa-solid fa-circle-info"></i>
@@ -22,56 +24,37 @@
     </header>
 
     <div class="reading-goal-bar">
-        <span>1. The Opener</span>
-        <span>Reading goal: 0/5 mins <i class="fa-regular fa-circle"></i> <i class="fa-solid fa-chevron-right"></i></span>
+        <span id="surahEnglishMeaning">The Opener</span>
+        <span>Reading goal: 0/5 mins <i class="fa-regular fa-circle"></i></span>
     </div>
 
     <!-- Surah Header Banner -->
     <div class="surah-banner-container">
         <div class="surah-banner">
-            <h1>الفاتحة</h1>
+            <h1 id="surahArabicTitle">الفاتحة</h1>
         </div>
     </div>
 
     <!-- Ayats Container -->
-    <main class="ayats-list">
-
-        <!-- Aya 1 -->
-        <div class="aya-card">
-            <span class="aya-badge">Aya 1:1 <i class="fa-solid fa-chevron-down"></i></span>
-            <div class="ar-text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ﴿١﴾</div>
-            <div class="bn-text">শুরু করছি আল্লাহর নামে যিনি পরম করুণাময়, অতি দয়ালু।</div>
-        </div>
-
-        <!-- Aya 2 -->
-        <div class="aya-card">
-            <span class="aya-badge">Aya 1:2 <i class="fa-solid fa-chevron-down"></i></span>
-            <div class="ar-text">الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ﴿٢﴾</div>
-            <div class="bn-text">যাবতীয় প্রশংসা আল্লাহ তাআলার যিনি সকল সৃষ্টি জগতের পালনকর্তা।</div>
-        </div>
-
-        <!-- Aya 3 -->
-        <div class="aya-card">
-            <span class="aya-badge">Aya 1:3 <i class="fa-solid fa-chevron-down"></i></span>
-            <div class="ar-text">الرَّحْمَٰنِ الرَّحِيمِ ﴿٣﴾</div>
-            <div class="bn-text">যিনি অত্যন্ত মেহেরবান ও দয়ালু।</div>
-        </div>
-
+    <main class="ayats-list" id="ayatsContainer">
+        <p style="text-align:center; padding:20px; color:#aaa;">আয়াত লোড হচ্ছে...</p>
     </main>
 
     <!-- Floating Audio Player Bar -->
     <div class="floating-audio-player">
         <button class="play-btn" id="playBtn" onclick="togglePlay()"><i class="fa-solid fa-play"></i></button>
         <div class="reciter-info">
-            <span class="track-title">-</span>
-            <span class="reciter-name">Saad Al-Ghamdi</span>
+            <span class="track-title" id="audioTrackTitle">Surah Player</span>
+            <span class="reciter-name">Mishary Rashid Alafasy</span>
         </div>
         <div class="player-controls">
             <span class="speed">1x</span>
-            <i class="fa-solid fa-backward-step"></i>
-            <i class="fa-solid fa-forward-step"></i>
+            <i class="fa-solid fa-backward-step" onclick="prevSurah()"></i>
+            <i class="fa-solid fa-forward-step" onclick="nextSurah()"></i>
         </div>
     </div>
+
+    <audio id="quranAudio"></audio>
 
     <script src="script.js"></script>
 </body>
