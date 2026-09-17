@@ -1,28 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: gap: https://ssl.gstatic.com;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THE TRUTH OF LIFE</title>
-    <style>
-        body { font-family: sans-serif; margin: 0; padding: 10px; background: #f4f6f9; }
-        .header { text-align: center; color: #1a237e; margin-bottom: 15px; }
-        .search-box { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; margin-bottom: 15px; outline: none; }
-        .surah-card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .surah-title { font-size: 18px; font-weight: bold; color: #1a237e; }
-        .btn-back { background: #1a237e; color: white; border: none; padding: 10px 18px; border-radius: 5px; margin-bottom: 15px; font-size: 16px; }
-        .ayah-box { background: white; padding: 15px; margin-bottom: 12px; border-radius: 8px; border-left: 4px solid #1a237e; }
-        .arabic-text { font-size: 26px; text-align: right; color: #000; line-height: 1.8; margin-bottom: 10px; }
-        .bangla-text { font-size: 16px; color: #333; line-height: 1.5; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="app">
-        <h3 style="text-align:center;">Loading Surah List...</h3>
-    </div>
+    <header class="app-header">
+        <div class="header-content">
+            <h1>THE TRUTH OF LIFE</h1>
+            <p id="current-date">Loading Hijri & Gregorian Date...</p>
+        </div>
+    </header>
 
-    <script src="cordova.js"></script>
-    <script src="js/index.js"></script>
+    <main class="main-container">
+        <!-- Muslim Pro Style Prayer Dashboard -->
+        <section class="card prayer-card">
+            <div class="card-header">
+                <h2>Today's Prayer Times</h2>
+            </div>
+            <div class="prayer-grid">
+                <div class="prayer-box">
+                    <span class="p-name">Fajr</span>
+                    <strong class="p-time" id="fajr">--:--</strong>
+                </div>
+                <div class="prayer-box">
+                    <span class="p-name">Dhuhr</span>
+                    <strong class="p-time" id="dhuhr">--:--</strong>
+                </div>
+                <div class="prayer-box">
+                    <span class="p-name">Asr</span>
+                    <strong class="p-time" id="asr">--:--</strong>
+                </div>
+                <div class="prayer-box">
+                    <span class="p-name">Maghrib</span>
+                    <strong class="p-time" id="maghrib">--:--</strong>
+                </div>
+                <div class="prayer-box">
+                    <span class="p-name">Isha</span>
+                    <strong class="p-time" id="isha">--:--</strong>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quran Surah Reader & Navigation -->
+        <section class="card quran-card">
+            <div class="reader-nav">
+                <button id="prev-btn" onclick="loadPreviousSurah()">❮ Prev</button>
+                <h2 id="surah-title">Surah 1</h2>
+                <button id="next-btn" onclick="loadNextSurah()">Next ❯</button>
+            </div>
+            <div id="surah-content" class="content-box">
+                <p class="swipe-hint">💡 Swipe left or right to switch Surah</p>
+                <div id="verses-container"></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
 </body>
 </html>

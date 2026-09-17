@@ -1,0 +1,116 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+    background-color: #062c22;
+    color: #ffffff;
+    padding: 12px;
+    user-select: none;
+}
+
+.app-header {
+    background: linear-gradient(135deg, #094032, #062c22);
+    text-align: center;
+    padding: 20px 10px;
+    border-radius: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #105d49;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.app-header h1 {
+    color: #d97706;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+#current-date {
+    color: #a7f3d0;
+    font-size: 0.85rem;
+    margin-top: 6px;
+}
+
+.card {
+    background: #094032;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid #0f5241;
+}
+
+.card-header h2 {
+    font-size: 1rem;
+    color: #f59e0b;
+    text-align: center;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+.prayer-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+}
+
+.prayer-box {
+    background: #0b5240;
+    padding: 10px 2px;
+    border-radius: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 1px solid #146c55;
+}
+
+.p-name {
+    font-size: 0.7rem;
+    color: #ecfdf5;
+}
+
+.p-time {
+    font-size: 0.8rem;
+    color: #fbbf24;
+    margin-top: 4px;
+    font-weight: bold;
+}
+
+.reader-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.reader-nav button {
+    background: #d97706;
+    color: #ffffff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#surah-title {
+    font-size: 1.1rem;
+    color: #ffffff;
+}
+
+.swipe-hint {
+    font-size: 0.75rem;
+    color: #6ee7b7;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.content-box {
+    min-height: 180px;
+}
