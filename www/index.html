@@ -15,7 +15,7 @@
             <div class="banner-top">
                 <span class="now-badge" id="current-prayer-name">--</span>
                 <span id="location-name-home" onclick="openLocationModal()" style="cursor:pointer;">
-                    <i class="fa-solid fa-location-dot"></i> <span class="city-display-name">Loading...</span>
+                    <i class="fa-solid fa-location-dot"></i> <span class="city-display-name">Chuadanga</span>
                 </span>
             </div>
             <h1 id="current-prayer-time">--:--</h1>
@@ -26,7 +26,7 @@
             </div>
         </div>
 
-        <div class="card jummah-card" onclick="switchTab('quran')">
+        <div class="card jummah-card" onclick="openSurahDirect(18)">
             <div class="jummah-icon"><i class="fa-solid fa-mosque"></i></div>
             <div>
                 <small>Jummah Mubarak</small>
@@ -36,12 +36,12 @@
 
         <h3>Features</h3>
         <div class="features-grid">
-            <div class="feat-card" onclick="switchTab('quran')"><i class="fa-solid fa-compass"></i><span>Qibla</span></div>
+            <div class="feat-card" onclick="openFeature('qibla')"><i class="fa-solid fa-compass"></i><span>Qibla</span></div>
             <div class="feat-card" onclick="switchTab('quran')"><i class="fa-solid fa-book-quran"></i><span>Quran</span></div>
-            <div class="feat-card"><i class="fa-solid fa-hands-praying"></i><span>Duas</span></div>
-            <div class="feat-card"><i class="fa-solid fa-dhikr"></i><span>Tasbih</span></div>
-            <div class="feat-card"><i class="fa-solid fa-book-open"></i><span>Journal</span></div>
-            <div class="feat-card"><i class="fa-solid fa-mosque"></i><span>Mosques</span></div>
+            <div class="feat-card" onclick="openFeature('duas')"><i class="fa-solid fa-hands-praying"></i><span>Duas</span></div>
+            <div class="feat-card" onclick="openFeature('tasbih')"><i class="fa-solid fa-dhikr"></i><span>Tasbih</span></div>
+            <div class="feat-card" onclick="openFeature('journal')"><i class="fa-solid fa-book-open"></i><span>Journal</span></div>
+            <div class="feat-card" onclick="openFeature('mosque')"><i class="fa-solid fa-mosque"></i><span>Mosques</span></div>
         </div>
     </div>
 
@@ -49,7 +49,7 @@
     <div id="tab-prayers" class="tab-content">
         <div class="date-picker-bar">
             <div class="date-info">
-                <h2 id="display-date">September 18</h2>
+                <h2 id="display-date">Today</h2>
                 <p id="display-hijri">Loading Hijri...</p>
             </div>
             <div class="date-controls">
@@ -58,16 +58,8 @@
             </div>
         </div>
 
-        <div class="card tracker-card">
-            <div>
-                <strong>Mark all as prayed</strong>
-                <p id="tracker-status">0/5 tracked</p>
-            </div>
-            <i class="fa-regular fa-circle-check check-all" onclick="toggleMarkAll()"></i>
-        </div>
-
         <div class="location-picker-btn" onclick="openLocationModal()">
-            <i class="fa-solid fa-location-crosshairs"></i> Change Location (<span class="city-display-name">Loading...</span>)
+            <i class="fa-solid fa-location-crosshairs"></i> Change Location (<span class="city-display-name">Chuadanga</span>)
         </div>
 
         <div class="prayer-container" id="prayer-list">
@@ -82,14 +74,89 @@
 
     <!-- Quran Tab -->
     <div id="tab-quran" class="tab-content">
-        <div class="quran-search-box">
-            <input type="text" id="quranSearchInput" placeholder="Search Surah or Ayat (e.g. 2:255, Kahf)">
-            <button onclick="triggerQuranSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <!-- Surah List View -->
+        <div id="quran-list-view">
+            <div class="quran-search-box">
+                <input type="text" id="quranSearchInput" onkeyup="filterSurahList()" placeholder="Search Surah (e.g. Yaseen, Kahf, 36)">
+                <button><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div id="surahListContainer" class="surah-list"></div>
         </div>
-        <div class="surah-select-wrapper">
-            <select id="surahSelect" onchange="loadSurah(this.value)"></select>
+
+        <!-- Single Surah View -->
+        <div id="quran-detail-view" style="display:none;">
+            <div class="surah-header-bar">
+                <button class="back-btn" onclick="closeSurahDetail()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                <h3 id="surahDetailTitle">Surah Name</h3>
+                <div></div>
+            </div>
+            <div id="ayatsContainer" class="ayats-container"></div>
         </div>
-        <div id="ayatsContainer" class="ayats-container"></div>
+    </div>
+
+    <!-- Feature Sub-Pages / Modals -->
+
+    <!-- Qibla View -->
+    <div id="view-qibla" class="sub-view">
+        <div class="sub-header">
+            <button onclick="closeSubView()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+            <h3>Qibla Direction</h3>
+        </div>
+        <div class="qibla-container">
+            <i class="fa-solid fa-compass compass-icon"></i>
+            <p>Point your phone towards Qibla</p>
+            <h2 style="margin-top:15px; color:#10b981;">288° West-Northwest</h2>
+        </div>
+    </div>
+
+    <!-- Duas View -->
+    <div id="view-duas" class="sub-view">
+        <div class="sub-header">
+            <button onclick="closeSubView()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+            <h3>Daily Duas</h3>
+        </div>
+        <div id="duasContainer" class="sub-content-list"></div>
+    </div>
+
+    <!-- Tasbih View -->
+    <div id="view-tasbih" class="sub-view">
+        <div class="sub-header">
+            <button onclick="closeSubView()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+            <h3>Digital Tasbih</h3>
+        </div>
+        <div class="tasbih-container">
+            <h2 id="tasbih-phrase">SubhanAllah</h2>
+            <div class="tasbih-count" id="tasbih-counter">0</div>
+            <button class="tasbih-btn" onclick="countTasbih()">TAP</button>
+            <br>
+            <button class="reset-btn" onclick="resetTasbih()"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+        </div>
+    </div>
+
+    <!-- Journal View -->
+    <div id="view-journal" class="sub-view">
+        <div class="sub-header">
+            <button onclick="closeSubView()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+            <h3>Islamic Journal</h3>
+        </div>
+        <div style="padding:15px;">
+            <textarea id="journalInput" placeholder="Write your daily Islamic reflection, Dua or notes..."></textarea>
+            <button class="action-btn" onclick="saveJournalNote()">Save Entry</button>
+            <div id="journalNotesList" style="margin-top:20px;"></div>
+        </div>
+    </div>
+
+    <!-- Mosque View -->
+    <div id="view-mosque" class="sub-view">
+        <div class="sub-header">
+            <button onclick="closeSubView()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+            <h3>Nearby Mosques</h3>
+        </div>
+        <div style="padding:20px; text-align:center;">
+            <i class="fa-solid fa-mosque" style="font-size:50px; color:#10b981; margin-bottom:15px;"></i>
+            <p>Find mosques near <span class="city-display-name">Chuadanga</span></p>
+            <button class="action-btn" style="margin-top:20px;" onclick="searchMosquesMap()">Open Maps</button>
+        </div>
     </div>
 
     <!-- Location Modal -->
@@ -100,11 +167,11 @@
                 <span class="close-btn" onclick="closeLocationModal()">&times;</span>
             </div>
             <div class="search-box">
-                <input type="text" id="citySearchInput" placeholder="Enter city name (e.g. Dhaka, Jessore)">
+                <input type="text" id="citySearchInput" placeholder="Enter city (e.g. Chuadanga, Dhaka)">
                 <button onclick="searchCity()"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
             <div class="gps-btn" onclick="useCurrentLocation()">
-                <i class="fa-solid fa-location-arrow"></i> Use current location (GPS)
+                <i class="fa-solid fa-location-arrow"></i> Use GPS Location
             </div>
             <div id="location-error" style="color:#ef4444; font-size:0.85rem; margin-top:10px; display:none;"></div>
         </div>

@@ -1,12 +1,15 @@
 let currentDate = new Date();
-let currentCity = localStorage.getItem('userCity') || 'Dhaka';
+let currentCity = localStorage.getItem('userCity') || 'Chuadanga';
 let currentLat = localStorage.getItem('userLat') || null;
 let currentLng = localStorage.getItem('userLng') || null;
-let surahDataList = [];
+let surahList = [];
+let tasbihCount = 0;
 
+// Nav Switch
 function switchTab(tabId, btnEl) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+    closeSubView();
     
     document.getElementById(`tab-${tabId}`).classList.add('active');
     if(btnEl) {
@@ -20,11 +23,10 @@ function switchTab(tabId, btnEl) {
 }
 
 function updateCityDisplays(name) {
-    document.querySelectorAll('.city-display-name').forEach(el => {
-        el.innerText = name;
-    });
+    document.querySelectorAll('.city-display-name').forEach(el => el.innerText = name);
 }
 
+// Prayer Timings
 function fetchPrayerTimes() {
     const day = currentDate.getDate();
     const month = currentDate.getMonth() + 1;
@@ -33,12 +35,9 @@ function fetchPrayerTimes() {
     document.getElementById('display-date').innerText = currentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
     updateCityDisplays(currentCity);
 
-    let apiUrl = '';
-    if (currentLat && currentLng) {
-        apiUrl = `https://api.aladhan.com/v1/timings/${day}-${month}-${year}?latitude=${currentLat}&longitude=${currentLng}&method=1`;
-    } else {
-        apiUrl = `https://api.aladhan.com/v1/timingsByCity/${day}-${month}-${year}?city=${encodeURIComponent(currentCity)}&country=`;
-    }
+    let apiUrl = (currentLat && currentLng) 
+        ? `https://api.aladhan.com/v1/timings/${day}-${month}-${year}?latitude=${currentLat}&longitude=${currentLng}&method=1`
+        : `https://api.aladhan.com/v1/timingsByCity/${day}-${month}-${year}?city=${encodeURIComponent(currentCity)}&country=`;
 
     fetch(apiUrl)
         .then(res => res.json())
@@ -58,8 +57,7 @@ function fetchPrayerTimes() {
 
                 updateNextPrayerCard(timings);
             }
-        })
-        .catch(err => console.error("Error fetching timings:", err));
+        });
 }
 
 function updateNextPrayerCard(timings) {
@@ -81,7 +79,6 @@ function updateNextPrayerCard(timings) {
     for (let p of prayerOrder) {
         const [h, m] = p.time.split(':').map(Number);
         const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
-
         if (pDate > now) {
             nextPrayer = p;
             nextPrayerTimeDate = pDate;
@@ -112,91 +109,71 @@ function changeDate(days) {
     fetchPrayerTimes();
 }
 
-function openLocationModal() { 
-    document.getElementById('locationModal').style.display = 'flex';
-    document.getElementById('location-error').style.display = 'none';
-}
-function closeLocationModal() { 
-    document.getElementById('locationModal').style.display = 'none'; 
-}
-
-function useCurrentLocation() {
-    const errDiv = document.getElementById('location-error');
-    errDiv.style.display = 'none';
-
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            position => {
-                currentLat = position.coords.latitude;
-                currentLng = position.coords.longitude;
-                currentCity = 'GPS Location';
-
-                localStorage.setItem('userLat', currentLat);
-                localStorage.setItem('userLng', currentLng);
-                localStorage.setItem('userCity', currentCity);
-
-                fetchPrayerTimes();
-                closeLocationModal();
-            },
-            err => {
-                errDiv.innerText = "GPS Error! Device Location Access enable karun.";
-                errDiv.style.display = 'block';
-            }
-        );
-    } else {
-        errDiv.innerText = "Geolocation support korche na.";
-        errDiv.style.display = 'block';
-    }
-}
+// Location Modal
+function openLocationModal() { document.getElementById('locationModal').style.display = 'flex'; }
+function closeLocationModal() { document.getElementById('locationModal').style.display = 'none'; }
 
 function searchCity() {
     const input = document.getElementById('citySearchInput').value.trim();
-    const errDiv = document.getElementById('location-error');
-    errDiv.style.display = 'none';
-
     if(!input) return;
-
-    fetch(`https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(input)}&country=`)
-        .then(res => res.json())
-        .then(data => {
-            if(data.code === 200) {
-                // Capitalize first letter
-                currentCity = input.charAt(0).toUpperCase() + input.slice(1);
-                currentLat = null;
-                currentLng = null;
-
-                localStorage.removeItem('userLat');
-                localStorage.removeItem('userLng');
-                localStorage.setItem('userCity', currentCity);
-
-                fetchPrayerTimes();
-                closeLocationModal();
-                document.getElementById('citySearchInput').value = '';
-            } else {
-                errDiv.innerText = "City paoya jayni! Sotik shohorer naam likhun.";
-                errDiv.style.display = 'block';
-            }
-        })
-        .catch(err => {
-            errDiv.innerText = "Network problem! Connection check karun.";
-            errDiv.style.display = 'block';
-        });
+    currentCity = input.charAt(0).toUpperCase() + input.slice(1);
+    currentLat = null; currentLng = null;
+    localStorage.removeItem('userLat'); localStorage.removeItem('userLng');
+    localStorage.setItem('userCity', currentCity);
+    fetchPrayerTimes();
+    closeLocationModal();
 }
 
-function initSurahList() {
+function useCurrentLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            currentLat = pos.coords.latitude; currentLng = pos.coords.longitude;
+            currentCity = 'GPS Location';
+            localStorage.setItem('userLat', currentLat); localStorage.setItem('userLng', currentLng);
+            localStorage.setItem('userCity', currentCity);
+            fetchPrayerTimes(); closeLocationModal();
+        });
+    }
+}
+
+// Quran Full Surah List (Muslim Pro Style)
+function initQuranList() {
     fetch('https://api.alquran.cloud/v1/surah')
         .then(res => res.json())
         .then(data => {
-            surahDataList = data.data;
-            const select = document.getElementById('surahSelect');
-            select.innerHTML = surahDataList.map(s => `<option value="${s.number}">${s.number}. ${s.englishName} (${s.name})</option>`).join('');
-            loadSurah(1);
+            surahList = data.data;
+            renderSurahList(surahList);
         });
 }
 
-function loadSurah(surahNum, targetAyat = null) {
+function renderSurahList(list) {
+    const container = document.getElementById('surahListContainer');
+    container.innerHTML = list.map(s => `
+        <div class="surah-item" onclick="openSurahDetail(${s.number}, '${s.englishName}')">
+            <div class="surah-left">
+                <div class="surah-num">${s.number}</div>
+                <div class="surah-names">
+                    <h4>${s.englishName}</h4>
+                    <small>${s.revelationType} • ${s.numberOfAyahs} Ayahs</small>
+                </div>
+            </div>
+            <div class="surah-ar-name">${s.name}</div>
+        </div>
+    `).join('');
+}
+
+function filterSurahList() {
+    const q = document.getElementById('quranSearchInput').value.toLowerCase();
+    const filtered = surahList.filter(s => s.englishName.toLowerCase().includes(q) || s.number.toString() === q);
+    renderSurahList(filtered);
+}
+
+function openSurahDetail(surahNum, englishName) {
+    document.getElementById('quran-list-view').style.display = 'none';
+    document.getElementById('quran-detail-view').style.display = 'block';
+    document.getElementById('surahDetailTitle').innerText = englishName || `Surah ${surahNum}`;
+    
     const container = document.getElementById('ayatsContainer');
-    document.getElementById('surahSelect').value = surahNum;
     container.innerHTML = '<p style="text-align:center; padding:20px; color:#9ca3af;">Loading Surah...</p>';
 
     fetch(`https://api.alquran.cloud/v1/surah/${surahNum}/editions/quran-uthmani,bn.bengali`)
@@ -205,52 +182,90 @@ function loadSurah(surahNum, targetAyat = null) {
             const arAyahs = data.data[0].ayahs;
             const bnAyahs = data.data[1].ayahs;
 
-            let html = '';
-            for(let i = 0; i < arAyahs.length; i++) {
-                const isSajdah = arAyahs[i].sajda ? true : false;
-                const sajdahBadge = isSajdah ? '<span style="background:#059669; color:#fff; font-size:0.7rem; padding:2px 8px; border-radius:10px;">۩ Sajdah</span>' : '';
-
-                html += `
-                    <div class="aya-card" id="aya-${i+1}">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-size:0.8rem; color:#10b981; font-weight:bold;">Aya ${surahNum}:${i+1}</span>
-                            ${sajdahBadge}
-                        </div>
-                        <div class="ar-text">${arAyahs[i].text} ﴿${i+1}﴾</div>
-                        <div class="bn-text">${bnAyahs[i].text}</div>
-                    </div>
-                `;
-            }
-            container.innerHTML = html;
-
-            if(targetAyat && targetAyat <= arAyahs.length) {
-                setTimeout(() => {
-                    let el = document.getElementById(`aya-${targetAyat}`);
-                    if(el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 300);
-            }
+            container.innerHTML = arAyahs.map((ar, i) => `
+                <div class="aya-card">
+                    <span style="font-size:0.8rem; color:#10b981; font-weight:bold;">${surahNum}:${i+1}</span>
+                    <div class="ar-text">${ar.text} ﴿${i+1}﴾</div>
+                    <div class="bn-text">${bnAyahs[i].text}</div>
+                </div>
+            `).join('');
         });
 }
 
-function triggerQuranSearch() {
-    const query = document.getElementById('quranSearchInput').value.trim().toLowerCase();
-    if(!query) return;
+function openSurahDirect(surahNum) {
+    switchTab('quran');
+    openSurahDetail(surahNum, 'Surah Al-Kahf');
+}
 
-    let match = query.match(/^(\d+)[:\s]+(\d+)$/);
-    if(match) {
-        loadSurah(parseInt(match[1]), parseInt(match[2]));
-        return;
-    }
+function closeSurahDetail() {
+    document.getElementById('quran-detail-view').style.display = 'none';
+    document.getElementById('quran-list-view').style.display = 'block';
+}
 
-    let found = surahDataList.find(s => s.englishName.toLowerCase().includes(query) || s.name.includes(query));
-    if(found) {
-        loadSurah(found.number);
-    } else if(!isNaN(query) && parseInt(query) >= 1 && parseInt(query) <= 114) {
-        loadSurah(parseInt(query));
-    }
+// Sub Features Handler
+function openFeature(feat) {
+    document.querySelectorAll('.sub-view').forEach(el => el.style.display = 'none');
+    document.getElementById(`view-${feat}`).style.display = 'block';
+
+    if(feat === 'duas') loadDuas();
+    if(feat === 'journal') loadJournalNotes();
+}
+
+function closeSubView() {
+    document.querySelectorAll('.sub-view').forEach(el => el.style.display = 'none');
+}
+
+// Sub Features Data
+function loadDuas() {
+    const duas = [
+        { title: "ঘুম থেকে ওঠার দোয়া", ar: "الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ", bn: "সব প্রশংসা আল্লাহর জন্য, যিনি মৃত্যুর (ঘুমের) পর আমাদের জীবিত করলেন।" },
+        { title: "খাওয়ার আগের দোয়া", ar: "بِسْمِ اللهِ", bn: "আল্লাহর নামে শুরু করছি।" },
+        { title: "ঘরে প্রবেশের দোয়া", ar: "بِسْمِ اللهِ وَلَجْنَا، وَبِسْمِ اللهِ خَرَجْنَا", bn: "আল্লাহর নামে আমরা প্রবেশ করলাম এবং আল্লাহর নামে বের হলাম।" }
+    ];
+    document.getElementById('duasContainer').innerHTML = duas.map(d => `
+        <div class="aya-card" style="margin-bottom:12px;">
+            <h4>${d.title}</h4>
+            <div class="ar-text">${d.ar}</div>
+            <div class="bn-text">${d.bn}</div>
+        </div>
+    `).join('');
+}
+
+function countTasbih() {
+    tasbihCount++;
+    document.getElementById('tasbih-counter').innerText = tasbihCount;
+}
+
+function resetTasbih() {
+    tasbihCount = 0;
+    document.getElementById('tasbih-counter').innerText = 0;
+}
+
+function saveJournalNote() {
+    const text = document.getElementById('journalInput').value.trim();
+    if(!text) return;
+    let notes = JSON.parse(localStorage.getItem('myJournalNotes') || '[]');
+    notes.unshift({ text, date: new Date().toLocaleDateString() });
+    localStorage.setItem('myJournalNotes', JSON.stringify(notes));
+    document.getElementById('journalInput').value = '';
+    loadJournalNotes();
+}
+
+function loadJournalNotes() {
+    let notes = JSON.parse(localStorage.getItem('myJournalNotes') || '[]');
+    document.getElementById('journalNotesList').innerHTML = notes.map(n => `
+        <div class="card" style="margin-bottom:10px;">
+            <small style="color:#10b981;">${n.date}</small>
+            <p style="margin-top:6px;">${n.text}</p>
+        </div>
+    `).join('');
+}
+
+function searchMosquesMap() {
+    window.open(`https://www.google.com/maps/search/mosque+near+${encodeURIComponent(currentCity)}`, '_blank');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     fetchPrayerTimes();
-    initSurahList();
+    initQuranList();
 });
