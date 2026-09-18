@@ -1,5 +1,5 @@
 let currentDate = new Date();
-let currentCity = localStorage.getItem('userCity') || 'Chuadanga';
+let currentCity = localStorage.getItem('userCity') || 'Darsana shantipara';
 let currentLat = localStorage.getItem('userLat') || null;
 let currentLng = localStorage.getItem('userLng') || null;
 let surahList = [];
@@ -129,7 +129,7 @@ function useCurrentLocation() {
             pos => {
                 currentLat = pos.coords.latitude; 
                 currentLng = pos.coords.longitude;
-                currentCity = 'GPS Location';
+                currentCity = 'Current GPS Location';
                 localStorage.setItem('userLat', currentLat); 
                 localStorage.setItem('userLng', currentLng);
                 localStorage.setItem('userCity', currentCity);
@@ -137,10 +137,12 @@ function useCurrentLocation() {
                 closeLocationModal();
             },
             err => {
-                alert("GPS error! Enable Location.");
+                alert("Please enable Device Location (GPS) & App Location Permission.");
             },
-            { enableHighAccuracy: true }
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
+    } else {
+        alert("Geolocation is not supported by your device.");
     }
 }
 
@@ -176,7 +178,6 @@ function renderSurahList(list) {
     `).join('');
 }
 
-// Ultra-Flexible Surah, English Name, Number & Ayat Search with Typo Tolerance
 function filterSurahList() {
     const rawQ = document.getElementById('quranSearchInput').value.trim().toLowerCase();
     if(!rawQ) {
@@ -184,7 +185,6 @@ function filterSurahList() {
         return;
     }
 
-    // 1. Check if user typed Ayat pattern: "2:255", "2 255", "36:1" or "36 1"
     let directAyatMatch = rawQ.match(/^(\d+)[:\s]+(\d+)$/);
     if(directAyatMatch) {
         let surahNum = parseInt(directAyatMatch[1]);
@@ -195,7 +195,6 @@ function filterSurahList() {
         }
     }
 
-    // 2. Check if user typed "SurahName AyatNumber" e.g., "baqarah 255" or "yasin 10"
     let nameAndAyatMatch = rawQ.match(/^([a-z\s]+)\s+(\d+)$/);
     let targetAyatFromText = null;
     let queryText = rawQ;
@@ -213,12 +212,10 @@ function filterSurahList() {
         let arName = s.name.toLowerCase();
         let num = s.number.toString();
 
-        // Exact or Substring match
         if (cleanEngName.includes(cleanQ) || arName.includes(queryText) || num === queryText) {
             return true;
         }
 
-        // Fuzzy match for Typos (phonetic similarity)
         let searchChars = cleanQ.split('');
         let matches = 0;
         let pos = 0;
@@ -232,7 +229,6 @@ function filterSurahList() {
         return (matches / cleanQ.length) >= 0.6;
     });
 
-    // If user searched like "baqarah 255" and we found exact Surah, open directly
     if(nameAndAyatMatch && filtered.length > 0) {
         openSurahDetail(filtered[0].number, filtered[0].englishName, targetAyatFromText);
         return;
@@ -263,7 +259,6 @@ function openSurahDetail(surahNum, englishName, targetAyat = null) {
                 </div>
             `).join('');
 
-            // Scroll directly to target Ayat if specified
             if(targetAyat && targetAyat <= arAyahs.length) {
                 setTimeout(() => {
                     let el = document.getElementById(`aya-${targetAyat}`);
@@ -339,7 +334,6 @@ function loadJournalNotes() {
     `).join('');
 }
 
-// Flexible Mosque Search by Current GPS Location or Custom Elaka / Area
 function searchMosquesMap() {
     if(currentLat && currentLng) {
         window.open(`https://www.google.com/maps/search/mosque/@${currentLat},${currentLng},16z`, '_blank');
