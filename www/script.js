@@ -191,59 +191,62 @@ function renderSurahList(list) {
     `).join('');
 }
 
+function normalizeStr(str) {
+    return str.toLowerCase().replace(/^al[\s\-']*/i, '').replace(/[^a-z0-9]/g, '');
+}
+
 function filterSurahList() {
-    const rawQ = document.getElementById('quranSearchInput').value.trim().toLowerCase();
-    if(!rawQ) {
+    const rawInput = document.getElementById('quranSearchInput').value.trim();
+    if(!rawInput) {
         renderSurahList(surahList);
         return;
     }
 
-    let directAyatMatch = rawQ.match(/^(\d+)[:\s]+(\d+)$/);
-    if(directAyatMatch) {
-        let surahNum = parseInt(directAyatMatch[1]);
-        let ayatNum = parseInt(directAyatMatch[2]);
+    let targetAyat = null;
+    let searchStr = rawInput;
+
+    const numColonNum = rawInput.match(/^(\d+)[:\s]+(\d+)$/);
+    if(numColonNum) {
+        let surahNum = parseInt(numColonNum[1]);
+        targetAyat = parseInt(numColonNum[2]);
         if(surahNum >= 1 && surahNum <= 114) {
-            openSurahDetail(surahNum, `Surah ${surahNum}`, ayatNum);
+            let sObj = surahList.find(s => s.number === surahNum);
+            openSurahDetail(surahNum, sObj ? sObj.englishName : `Surah ${surahNum}`, targetAyat);
             return;
         }
     }
 
-    let nameAndAyatMatch = rawQ.match(/^([a-z\s\-]+)\s+(\d+)$/i);
-    let targetAyatFromText = null;
-    let queryText = rawQ;
-
-    if(nameAndAyatMatch) {
-        queryText = nameAndAyatMatch[1].trim();
-        targetAyatFromText = parseInt(nameAndAyatMatch[2]);
+    const textAndNum = rawInput.match(/^(.+?)\s+(\d+)$/);
+    if(textAndNum) {
+        searchStr = textAndNum[1].trim();
+        targetAyat = parseInt(textAndNum[2]);
     }
 
-    const cleanQ = queryText.replace(/[^a-z0-9]/g, '');
+    const cleanQuery = normalizeStr(searchStr);
 
-    const filtered = surahList.filter(s => {
-        let engName = s.englishName.toLowerCase();
-        let cleanEngName = engName.replace(/[^a-z0-9]/g, '');
-        let arName = s.name.toLowerCase();
-        let num = s.number.toString();
-
-        if (cleanEngName.includes(cleanQ) || arName.includes(queryText) || num === queryText) {
-            return true;
-        }
-
-        let searchChars = cleanQ.split('');
-        let matches = 0;
-        let pos = 0;
-        for (let char of searchChars) {
-            let index = cleanEngName.indexOf(char, pos);
-            if (index !== -1) {
-                matches++;
-                pos = index + 1;
-            }
-        }
-        return (cleanQ.length > 0) && ((matches / cleanQ.length) >= 0.5);
+    let exactMatch = surahList.find(s => {
+        let cleanName = normalizeStr(s.englishName);
+        return cleanName === cleanQuery || s.number.toString() === cleanQuery;
     });
 
-    if(nameAndAyatMatch && filtered.length > 0) {
-        openSurahDetail(filtered[0].number, filtered[0].englishName, targetAyatFromText);
+    if(exactMatch) {
+        openSurahDetail(exactMatch.number, exactMatch.englishName, targetAyat);
+        return;
+    }
+
+    const filtered = surahList.filter(s => {
+        let cleanEng = normalizeStr(s.englishName);
+        let arName = s.name.toLowerCase();
+        let numStr = s.number.toString();
+
+        if (cleanEng.includes(cleanQuery) || arName.includes(searchStr.toLowerCase()) || numStr === cleanQuery) {
+            return true;
+        }
+        return false;
+    });
+
+    if(filtered.length === 1 && targetAyat) {
+        openSurahDetail(filtered[0].number, filtered[0].englishName, targetAyat);
         return;
     }
 
