@@ -176,21 +176,55 @@ function renderSurahList(list) {
     `).join('');
 }
 
+// Improved Search with Flexible Matching & Typo Handling
 function filterSurahList() {
-    const q = document.getElementById('quranSearchInput').value.trim().toLowerCase();
-    if(!q) {
+    const rawQ = document.getElementById('quranSearchInput').value.trim().toLowerCase();
+    if(!rawQ) {
         renderSurahList(surahList);
         return;
     }
-    const filtered = surahList.filter(s => 
-        s.englishName.toLowerCase().includes(q) || 
-        s.name.includes(q) || 
-        s.number.toString() === q
-    );
+
+    // Check if searching for Ayat like 2:255 or 36 1
+    let ayatMatch = rawQ.match(/^(\d+)[:\s]+(\d+)$/);
+    if(ayatMatch) {
+        let surahNum = parseInt(ayatMatch[1]);
+        let ayatNum = parseInt(ayatMatch[2]);
+        if(surahNum >= 1 && surahNum <= 114) {
+            openSurahDetail(surahNum, `Surah ${surahNum}`, ayatNum);
+            return;
+        }
+    }
+
+    const cleanQ = rawQ.replace(/[^a-z0-0]/g, '');
+
+    const filtered = surahList.filter(s => {
+        let engName = s.englishName.toLowerCase();
+        let cleanEngName = engName.replace(/[^a-z0-9]/g, '');
+        let arName = s.name.toLowerCase();
+        let num = s.number.toString();
+
+        if (cleanEngName.includes(cleanQ) || arName.includes(rawQ) || num === rawQ) {
+            return true;
+        }
+
+        // Fuzzy match: check if sequence of letters match roughly
+        let searchChars = cleanQ.split('');
+        let matchCount = 0;
+        let lastIndex = -1;
+        for (let char of searchChars) {
+            let foundIndex = cleanEngName.indexOf(char, lastIndex + 1);
+            if (foundIndex > lastIndex) {
+                matchCount++;
+                lastIndex = foundIndex;
+            }
+        }
+        return (matchCount / searchChars.length) >= 0.7;
+    });
+
     renderSurahList(filtered);
 }
 
-function openSurahDetail(surahNum, englishName) {
+function openSurahDetail(surahNum, englishName, targetAyat = null) {
     document.getElementById('quran-list-view').style.display = 'none';
     document.getElementById('quran-detail-view').style.display = 'block';
     document.getElementById('surahDetailTitle').innerText = englishName || `Surah ${surahNum}`;
@@ -205,12 +239,19 @@ function openSurahDetail(surahNum, englishName) {
             const bnAyahs = data.data[1].ayahs;
 
             container.innerHTML = arAyahs.map((ar, i) => `
-                <div class="aya-card">
+                <div class="aya-card" id="aya-${i+1}">
                     <span style="font-size:0.8rem; color:#10b981; font-weight:bold;">${surahNum}:${i+1}</span>
                     <div class="ar-text">${ar.text} ﴿${i+1}﴾</div>
                     <div class="bn-text">${bnAyahs[i].text}</div>
                 </div>
             `).join('');
+
+            if(targetAyat && targetAyat <= arAyahs.length) {
+                setTimeout(() => {
+                    let el = document.getElementById(`aya-${targetAyat}`);
+                    if(el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 400);
+            }
         });
 }
 
@@ -280,8 +321,13 @@ function loadJournalNotes() {
     `).join('');
 }
 
+// Fixed Nearby Mosques Search with Full Radius View
 function searchMosquesMap() {
-    window.open(`https://www.google.com/maps/search/mosque+near+${encodeURIComponent(currentCity)}`, '_blank');
+    if(currentLat && currentLng) {
+        window.open(`https://www.google.com/maps/search/mosques/@${currentLat},${currentLng},15z`, '_blank');
+    } else {
+        window.open(`https://www.google.com/maps/search/mosques+near+${encodeURIComponent(currentCity)}`, '_blank');
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
