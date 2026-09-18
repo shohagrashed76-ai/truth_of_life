@@ -5,7 +5,6 @@ let currentLng = localStorage.getItem('userLng') || null;
 let surahList = [];
 let tasbihCount = 0;
 
-// Nav Switch
 function switchTab(tabId, btnEl) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
@@ -26,7 +25,6 @@ function updateCityDisplays(name) {
     document.querySelectorAll('.city-display-name').forEach(el => el.innerText = name);
 }
 
-// Prayer Timings
 function fetchPrayerTimes() {
     const day = currentDate.getDate();
     const month = currentDate.getMonth() + 1;
@@ -109,16 +107,17 @@ function changeDate(days) {
     fetchPrayerTimes();
 }
 
-// Location Modal
 function openLocationModal() { document.getElementById('locationModal').style.display = 'flex'; }
 function closeLocationModal() { document.getElementById('locationModal').style.display = 'none'; }
 
 function searchCity() {
     const input = document.getElementById('citySearchInput').value.trim();
     if(!input) return;
-    currentCity = input.charAt(0).toUpperCase() + input.slice(1);
-    currentLat = null; currentLng = null;
-    localStorage.removeItem('userLat'); localStorage.removeItem('userLng');
+    currentCity = input;
+    currentLat = null; 
+    currentLng = null;
+    localStorage.removeItem('userLat'); 
+    localStorage.removeItem('userLng');
     localStorage.setItem('userCity', currentCity);
     fetchPrayerTimes();
     closeLocationModal();
@@ -126,17 +125,25 @@ function searchCity() {
 
 function useCurrentLocation() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
-            currentLat = pos.coords.latitude; currentLng = pos.coords.longitude;
-            currentCity = 'GPS Location';
-            localStorage.setItem('userLat', currentLat); localStorage.setItem('userLng', currentLng);
-            localStorage.setItem('userCity', currentCity);
-            fetchPrayerTimes(); closeLocationModal();
-        });
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                currentLat = pos.coords.latitude; 
+                currentLng = pos.coords.longitude;
+                currentCity = 'GPS Location';
+                localStorage.setItem('userLat', currentLat); 
+                localStorage.setItem('userLng', currentLng);
+                localStorage.setItem('userCity', currentCity);
+                fetchPrayerTimes(); 
+                closeLocationModal();
+            },
+            err => {
+                alert("GPS error! Enable Location.");
+            },
+            { enableHighAccuracy: true }
+        );
     }
 }
 
-// Quran Full Surah List (Muslim Pro Style)
 function initQuranList() {
     fetch('https://api.alquran.cloud/v1/surah')
         .then(res => res.json())
@@ -148,6 +155,13 @@ function initQuranList() {
 
 function renderSurahList(list) {
     const container = document.getElementById('surahListContainer');
+    if(!container) return;
+    
+    if(list.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding:20px; color:#9ca3af;">No Surah Found!</p>';
+        return;
+    }
+
     container.innerHTML = list.map(s => `
         <div class="surah-item" onclick="openSurahDetail(${s.number}, '${s.englishName}')">
             <div class="surah-left">
@@ -163,8 +177,16 @@ function renderSurahList(list) {
 }
 
 function filterSurahList() {
-    const q = document.getElementById('quranSearchInput').value.toLowerCase();
-    const filtered = surahList.filter(s => s.englishName.toLowerCase().includes(q) || s.number.toString() === q);
+    const q = document.getElementById('quranSearchInput').value.trim().toLowerCase();
+    if(!q) {
+        renderSurahList(surahList);
+        return;
+    }
+    const filtered = surahList.filter(s => 
+        s.englishName.toLowerCase().includes(q) || 
+        s.name.includes(q) || 
+        s.number.toString() === q
+    );
     renderSurahList(filtered);
 }
 
@@ -202,7 +224,6 @@ function closeSurahDetail() {
     document.getElementById('quran-list-view').style.display = 'block';
 }
 
-// Sub Features Handler
 function openFeature(feat) {
     document.querySelectorAll('.sub-view').forEach(el => el.style.display = 'none');
     document.getElementById(`view-${feat}`).style.display = 'block';
@@ -215,12 +236,10 @@ function closeSubView() {
     document.querySelectorAll('.sub-view').forEach(el => el.style.display = 'none');
 }
 
-// Sub Features Data
 function loadDuas() {
     const duas = [
-        { title: "ঘুম থেকে ওঠার দোয়া", ar: "الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ", bn: "সব প্রশংসা আল্লাহর জন্য, যিনি মৃত্যুর (ঘুমের) পর আমাদের জীবিত করলেন।" },
-        { title: "খাওয়ার আগের দোয়া", ar: "بِسْمِ اللهِ", bn: "আল্লাহর নামে শুরু করছি।" },
-        { title: "ঘরে প্রবেশের দোয়া", ar: "بِسْمِ اللهِ وَلَجْنَا، وَبِسْمِ اللهِ خَرَجْنَا", bn: "আল্লাহর নামে আমরা প্রবেশ করলাম এবং আল্লাহর নামে বের হলাম।" }
+        { title: "Ghum theke uthar doa", ar: "الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ", bn: "Sob proshongsa Allah r jonno, jini amader jibito korlen." },
+        { title: "Khabar ager doa", ar: "بِسْمِ اللهِ", bn: "Allah r name shuru korchi." }
     ];
     document.getElementById('duasContainer').innerHTML = duas.map(d => `
         <div class="aya-card" style="margin-bottom:12px;">
