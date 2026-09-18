@@ -1,6 +1,7 @@
 :root {
     --bg-dark: #02221b;
     --card-bg: #06372d;
+    --card-accent: #0b5243;
     --text-white: #ffffff;
     --text-muted: #9ca3af;
     --accent-green: #10b981;
@@ -17,102 +18,236 @@ body {
     background-color: var(--bg-dark);
     color: var(--text-white);
     padding: 16px;
-    padding-bottom: 70px;
+    padding-bottom: 80px;
 }
 
-.date-picker-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 16px;
     margin-bottom: 16px;
 }
 
-.date-info h2 {
-    font-size: 1.2rem;
-    font-weight: bold;
+/* Prayer Banner */
+.prayer-banner {
+    background: linear-gradient(135deg, #06372d, #0b5243);
 }
 
-.date-info p {
+.banner-top {
+    display: flex;
+    justify-content: space-between;
     font-size: 0.85rem;
     color: var(--text-muted);
 }
 
-.date-controls button {
-    background: none;
-    border: none;
-    color: var(--text-white);
-    font-size: 1.2rem;
-    margin-left: 12px;
-    cursor: pointer;
+.now-badge {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 4px 10px;
+    border-radius: 20px;
+    color: #fff;
 }
 
-.tracker-card {
-    background: var(--card-bg);
-    border-radius: 14px;
-    padding: 16px;
+.prayer-banner h1 {
+    font-size: 2.5rem;
+    margin: 10px 0 4px 0;
+}
+
+.banner-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    font-size: 0.9rem;
 }
 
-.check-all {
-    font-size: 24px;
-    color: var(--accent-green);
+/* Jummah Card */
+.jummah-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #084236;
     cursor: pointer;
 }
 
-.location-pill {
-    display: inline-block;
-    background: #09473a;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    margin-bottom: 16px;
+.jummah-icon {
+    font-size: 24px;
+    color: #f59e0b;
 }
 
+/* Features Grid */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.feat-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.feat-card i {
+    font-size: 20px;
+    color: #f59e0b;
+}
+
+/* Location Picker Button */
+.location-picker-btn {
+    background: var(--card-bg);
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    cursor: pointer;
+}
+
+/* Prayer Times List */
 .prayer-container {
     background: var(--card-bg);
     border-radius: 16px;
     overflow: hidden;
-    margin-bottom: 20px;
 }
 
 .p-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
     padding: 14px 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.p-row.active {
-    background: #0b5243;
-    border-left: 4px solid var(--accent-green);
+/* Quran Tab */
+.quran-search-box {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
 }
 
-.quick-features {
+.quran-search-box input, .search-box input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: none;
+    background: var(--card-bg);
+    color: #fff;
+}
+
+.quran-search-box button, .search-box button {
+    background: var(--accent-green);
+    border: none;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.surah-select-wrapper select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    background: var(--card-bg);
+    color: #fff;
+    border: none;
+    margin-bottom: 16px;
+}
+
+.aya-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+}
+
+.ar-text {
+    font-size: 1.3rem;
+    text-align: right;
+    margin: 10px 0;
+    line-height: 1.8;
+}
+
+.bn-text {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Bottom Nav */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: #011712;
     display: flex;
     justify-content: space-around;
-    margin-top: 10px;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.feat-item {
+.nav-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-    font-size: 0.8rem;
+    gap: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
 }
 
-.feat-icon {
-    width: 48px;
-    height: 48px;
-    background: var(--card-bg);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
+.nav-btn.active {
+    color: var(--accent-green);
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
     justify-content: center;
-    font-size: 20px;
-    color: #f59e0b;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--bg-dark);
+    padding: 20px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+}
+
+.close-btn {
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.gps-btn {
+    margin-top: 14px;
+    background: var(--card-bg);
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
 }

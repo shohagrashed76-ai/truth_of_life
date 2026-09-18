@@ -1,57 +1,128 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muslim Pro Style App</title>
+    <title>Islamic App</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <!-- Date Navigation Header -->
-    <div class="date-picker-bar">
-        <div class="date-info">
-            <h2 id="display-date">Today, 18 September</h2>
-            <p id="display-hijri">5 Rabi' II 1448 AH</p>
+    <!-- Home Tab -->
+    <div id="tab-home" class="tab-content active">
+        <!-- Current Prayer Banner -->
+        <div class="card prayer-banner">
+            <div class="banner-top">
+                <span class="now-badge" id="current-prayer-name">Dhuhr ☀️</span>
+                <span id="location-name"><i class="fa-solid fa-location-dot"></i> Kaliganj</span>
+            </div>
+            <h1 id="current-prayer-time">11:58</h1>
+            <p id="next-prayer-countdown">2h 14m to Asr</p>
+            <div class="banner-footer" onclick="switchTab('prayers')">
+                <span>View all prayer times</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </div>
         </div>
-        <div class="date-controls">
-            <button onclick="changeDate(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-            <button onclick="changeDate(1)"><i class="fa-solid fa-chevron-right"></i></button>
+
+        <!-- Friday Special Card -->
+        <div class="card jummah-card" onclick="switchTab('quran')">
+            <div class="jummah-icon"><i class="fa-solid fa-mosque"></i></div>
+            <div>
+                <small>Jummah Mubarak</small>
+                <h4>Read Sura Al-Kahf today →</h4>
+            </div>
+        </div>
+
+        <!-- Quick Features Grid -->
+        <h3>Features</h3>
+        <div class="features-grid">
+            <div class="feat-card" onclick="switchTab('quran')"><i class="fa-solid fa-compass"></i><span>Qibla</span></div>
+            <div class="feat-card" onclick="switchTab('quran')"><i class="fa-solid fa-book-quran"></i><span>Quran</span></div>
+            <div class="feat-card"><i class="fa-solid fa-hands-praying"></i><span>Duas</span></div>
+            <div class="feat-card"><i class="fa-solid fa-dhikr"></i><span>Tasbih</span></div>
+            <div class="feat-card"><i class="fa-solid fa-book-open"></i><span>Journal</span></div>
+            <div class="feat-card"><i class="fa-solid fa-mosque"></i><span>Mosques</span></div>
         </div>
     </div>
 
-    <!-- Mark All Card -->
-    <div class="card tracker-card">
-        <div class="tracker-left">
-            <strong>Mark all as prayed</strong>
-            <p id="tracker-status">0/5 tracked</p>
+    <!-- Prayers Tab -->
+    <div id="tab-prayers" class="tab-content">
+        <div class="date-picker-bar">
+            <div class="date-info">
+                <h2 id="display-date">Today, 18 September</h2>
+                <p id="display-hijri">5 Rabi' II 1448 AH</p>
+            </div>
+            <div class="date-controls">
+                <button onclick="changeDate(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                <button onclick="changeDate(1)"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
         </div>
-        <i class="fa-regular fa-circle-check check-all" onclick="toggleMarkAll()"></i>
+
+        <div class="card tracker-card">
+            <div>
+                <strong>Mark all as prayed</strong>
+                <p id="tracker-status">0/5 tracked</p>
+            </div>
+            <i class="fa-regular fa-circle-check check-all" onclick="toggleMarkAll()"></i>
+        </div>
+
+        <div class="location-picker-btn" onclick="openLocationModal()">
+            <i class="fa-solid fa-location-crosshairs"></i> Change Location
+        </div>
+
+        <div class="prayer-container" id="prayer-list">
+            <div class="p-row"><span>Fajr ✨</span><strong id="time-fajr">--:--</strong></div>
+            <div class="p-row"><span>Sunrise ☀️</span><strong id="time-sunrise">--:--</strong></div>
+            <div class="p-row"><span>Dhuhr ☀️</span><strong id="time-dhuhr">--:--</strong></div>
+            <div class="p-row"><span>Asr ⛅</span><strong id="time-asr">--:--</strong></div>
+            <div class="p-row"><span>Maghrib 🌅</span><strong id="time-maghrib">--:--</strong></div>
+            <div class="p-row"><span>Isha'a 🌙</span><strong id="time-isha">--:--</strong></div>
+        </div>
     </div>
 
-    <!-- Location Pill -->
-    <div class="location-pill">
-        <span><i class="fa-solid fa-location-dot"></i> Kaliganj</span>
+    <!-- Quran & Learn Tab -->
+    <div id="tab-quran" class="tab-content">
+        <div class="quran-search-box">
+            <input type="text" id="quranSearchInput" placeholder="Search Surah or Ayat (e.g. 2:255, Kahf)">
+            <button onclick="triggerQuranSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+        <div class="surah-select-wrapper">
+            <select id="surahSelect" onchange="loadSurah(this.value)"></select>
+        </div>
+        <div id="ayatsContainer" class="ayats-container"></div>
     </div>
 
-    <!-- Prayer Times List -->
-    <main class="prayer-container" id="prayer-list">
-        <div class="p-row"><span>Fajr ✨</span><strong id="time-fajr">--:--</strong></div>
-        <div class="p-row"><span>Sunrise ☀️</span><strong id="time-sunrise">--:--</strong></div>
-        <div class="p-row"><span>Dhuhr ☀️</span><strong id="time-dhuhr">--:--</strong></div>
-        <div class="p-row"><span>Asr ⛅</span><strong id="time-asr">--:--</strong></div>
-        <div class="p-row"><span>Maghrib 🌅</span><strong id="time-maghrib">--:--</strong></div>
-        <div class="p-row"><span>Isha'a 🌙</span><strong id="time-isha">--:--</strong></div>
-    </main>
-
-    <!-- Bottom Features -->
-    <div class="quick-features">
-        <div class="feat-item"><div class="feat-icon"><i class="fa-solid fa-compass"></i></div><span>Qibla</span></div>
-        <div class="feat-item"><div class="feat-icon"><i class="fa-solid fa-book-quran"></i></div><span>Quran</span></div>
-        <div class="feat-item"><div class="feat-icon"><i class="fa-solid fa-hands-praying"></i></div><span>Duas</span></div>
-        <div class="feat-item"><div class="feat-icon"><i class="fa-solid fa-dhikr"></i></div><span>Tasbih</span></div>
+    <!-- Location Modal -->
+    <div id="locationModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeLocationModal()">&times;</span>
+            <h3>Select Location</h3>
+            <div class="search-box">
+                <input type="text" id="citySearchInput" placeholder="Type in your city...">
+                <button onclick="searchCity()"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div class="gps-btn" onclick="useCurrentLocation()">
+                <i class="fa-solid fa-location-arrow"></i> Use your current location
+            </div>
+        </div>
     </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+        <button class="nav-btn active" onclick="switchTab('home', this)">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('prayers', this)">
+            <i class="fa-solid fa-person-praying"></i>
+            <span>Prayers</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('quran', this)">
+            <i class="fa-solid fa-book-quran"></i>
+            <span>Quran</span>
+        </button>
+    </nav>
 
     <script src="script.js"></script>
 </body>
