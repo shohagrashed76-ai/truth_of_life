@@ -1,5 +1,5 @@
 let currentDate = new Date();
-let currentCity = localStorage.getItem('userCity') || 'Darsana shantipara';
+let currentCity = localStorage.getItem('userCity') || 'Darsana';
 let currentLat = localStorage.getItem('userLat') || null;
 let currentLng = localStorage.getItem('userLng') || null;
 let surahList = [];
@@ -33,28 +33,41 @@ function fetchPrayerTimes() {
     document.getElementById('display-date').innerText = currentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
     updateCityDisplays(currentCity);
 
-    let apiUrl = (currentLat && currentLng) 
+    let primaryUrl = (currentLat && currentLng) 
         ? `https://api.aladhan.com/v1/timings/${day}-${month}-${year}?latitude=${currentLat}&longitude=${currentLng}&method=1`
-        : `https://api.aladhan.com/v1/timingsByCity/${day}-${month}-${year}?city=${encodeURIComponent(currentCity)}&country=`;
+        : `https://api.aladhan.com/v1/timingsByCity/${day}-${month}-${year}?city=${encodeURIComponent(currentCity)}&country=Bangladesh&method=1`;
 
-    fetch(apiUrl)
+    let fallbackUrl = `https://api.aladhan.com/v1/timingsByCity/${day}-${month}-${year}?city=Chuadanga&country=Bangladesh&method=1`;
+
+    const applyTimings = (data) => {
+        if(data && data.code === 200 && data.data) {
+            const timings = data.data.timings;
+            const hijri = data.data.date.hijri;
+
+            document.getElementById('display-hijri').innerText = `${hijri.day} ${hijri.month.en} ${hijri.year} AH`;
+
+            document.getElementById('time-fajr').innerText = timings.Fajr;
+            document.getElementById('time-sunrise').innerText = timings.Sunrise;
+            document.getElementById('time-dhuhr').innerText = timings.Dhuhr;
+            document.getElementById('time-asr').innerText = timings.Asr;
+            document.getElementById('time-maghrib').innerText = timings.Maghrib;
+            document.getElementById('time-isha').innerText = timings.Isha;
+
+            updateNextPrayerCard(timings);
+        }
+    };
+
+    fetch(primaryUrl)
         .then(res => res.json())
         .then(data => {
             if(data.code === 200) {
-                const timings = data.data.timings;
-                const hijri = data.data.date.hijri;
-
-                document.getElementById('display-hijri').innerText = `${hijri.day} ${hijri.month.en} ${hijri.year} AH`;
-
-                document.getElementById('time-fajr').innerText = timings.Fajr;
-                document.getElementById('time-sunrise').innerText = timings.Sunrise;
-                document.getElementById('time-dhuhr').innerText = timings.Dhuhr;
-                document.getElementById('time-asr').innerText = timings.Asr;
-                document.getElementById('time-maghrib').innerText = timings.Maghrib;
-                document.getElementById('time-isha').innerText = timings.Isha;
-
-                updateNextPrayerCard(timings);
+                applyTimings(data);
+            } else {
+                fetch(fallbackUrl).then(r => r.json()).then(applyTimings);
             }
+        })
+        .catch(() => {
+            fetch(fallbackUrl).then(r => r.json()).then(applyTimings).catch(e => console.log(e));
         });
 }
 
@@ -129,7 +142,7 @@ function useCurrentLocation() {
             pos => {
                 currentLat = pos.coords.latitude; 
                 currentLng = pos.coords.longitude;
-                currentCity = 'Current GPS Location';
+                currentCity = 'GPS Location';
                 localStorage.setItem('userLat', currentLat); 
                 localStorage.setItem('userLng', currentLng);
                 localStorage.setItem('userCity', currentCity);
@@ -137,12 +150,10 @@ function useCurrentLocation() {
                 closeLocationModal();
             },
             err => {
-                alert("Please enable Device Location (GPS) & App Location Permission.");
+                alert("Please enable Phone GPS / Location Services.");
             },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            { enableHighAccuracy: true, timeout: 10000 }
         );
-    } else {
-        alert("Geolocation is not supported by your device.");
     }
 }
 
@@ -150,8 +161,10 @@ function initQuranList() {
     fetch('https://api.alquran.cloud/v1/surah')
         .then(res => res.json())
         .then(data => {
-            surahList = data.data;
-            renderSurahList(surahList);
+            if(data && data.data) {
+                surahList = data.data;
+                renderSurahList(surahList);
+            }
         });
 }
 
@@ -159,13 +172,13 @@ function renderSurahList(list) {
     const container = document.getElementById('surahListContainer');
     if(!container) return;
     
-    if(list.length === 0) {
+    if(!list || list.length === 0) {
         container.innerHTML = '<p style="text-align:center; padding:20px; color:#9ca3af;">No Surah Found!</p>';
         return;
     }
 
     container.innerHTML = list.map(s => `
-        <div class="surah-item" onclick="openSurahDetail(${s.number}, '${s.englishName}')">
+        <div class="surah-item" onclick="openSurahDetail(${s.number}, '${s.englishName.replace(/'/g, "\\'")}')">
             <div class="surah-left">
                 <div class="surah-num">${s.number}</div>
                 <div class="surah-names">
@@ -195,7 +208,7 @@ function filterSurahList() {
         }
     }
 
-    let nameAndAyatMatch = rawQ.match(/^([a-z\s]+)\s+(\d+)$/);
+    let nameAndAyatMatch = rawQ.match(/^([a-z\s\-]+)\s+(\d+)$/i);
     let targetAyatFromText = null;
     let queryText = rawQ;
 
@@ -226,7 +239,7 @@ function filterSurahList() {
                 pos = index + 1;
             }
         }
-        return (matches / cleanQ.length) >= 0.6;
+        return (cleanQ.length > 0) && ((matches / cleanQ.length) >= 0.5);
     });
 
     if(nameAndAyatMatch && filtered.length > 0) {
@@ -248,22 +261,24 @@ function openSurahDetail(surahNum, englishName, targetAyat = null) {
     fetch(`https://api.alquran.cloud/v1/surah/${surahNum}/editions/quran-uthmani,bn.bengali`)
         .then(res => res.json())
         .then(data => {
-            const arAyahs = data.data[0].ayahs;
-            const bnAyahs = data.data[1].ayahs;
+            if(data && data.data && data.data.length >= 2) {
+                const arAyahs = data.data[0].ayahs;
+                const bnAyahs = data.data[1].ayahs;
 
-            container.innerHTML = arAyahs.map((ar, i) => `
-                <div class="aya-card" id="aya-${i+1}">
-                    <span style="font-size:0.8rem; color:#10b981; font-weight:bold;">${surahNum}:${i+1}</span>
-                    <div class="ar-text">${ar.text} ﴿${i+1}﴾</div>
-                    <div class="bn-text">${bnAyahs[i].text}</div>
-                </div>
-            `).join('');
+                container.innerHTML = arAyahs.map((ar, i) => `
+                    <div class="aya-card" id="aya-${i+1}">
+                        <span style="font-size:0.8rem; color:#10b981; font-weight:bold;">${surahNum}:${i+1}</span>
+                        <div class="ar-text">${ar.text} ﴿${i+1}﴾</div>
+                        <div class="bn-text">${bnAyahs[i] ? bnAyahs[i].text : ''}</div>
+                    </div>
+                `).join('');
 
-            if(targetAyat && targetAyat <= arAyahs.length) {
-                setTimeout(() => {
-                    let el = document.getElementById(`aya-${targetAyat}`);
-                    if(el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 400);
+                if(targetAyat && targetAyat <= arAyahs.length) {
+                    setTimeout(() => {
+                        let el = document.getElementById(`aya-${targetAyat}`);
+                        if(el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 400);
+                }
             }
         });
 }
