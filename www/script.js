@@ -176,7 +176,7 @@ function renderSurahList(list) {
     `).join('');
 }
 
-// Improved Search with Flexible Matching & Typo Handling
+// Ultra-Flexible Surah, English Name, Number & Ayat Search with Typo Tolerance
 function filterSurahList() {
     const rawQ = document.getElementById('quranSearchInput').value.trim().toLowerCase();
     if(!rawQ) {
@@ -184,18 +184,28 @@ function filterSurahList() {
         return;
     }
 
-    // Check if searching for Ayat like 2:255 or 36 1
-    let ayatMatch = rawQ.match(/^(\d+)[:\s]+(\d+)$/);
-    if(ayatMatch) {
-        let surahNum = parseInt(ayatMatch[1]);
-        let ayatNum = parseInt(ayatMatch[2]);
+    // 1. Check if user typed Ayat pattern: "2:255", "2 255", "36:1" or "36 1"
+    let directAyatMatch = rawQ.match(/^(\d+)[:\s]+(\d+)$/);
+    if(directAyatMatch) {
+        let surahNum = parseInt(directAyatMatch[1]);
+        let ayatNum = parseInt(directAyatMatch[2]);
         if(surahNum >= 1 && surahNum <= 114) {
             openSurahDetail(surahNum, `Surah ${surahNum}`, ayatNum);
             return;
         }
     }
 
-    const cleanQ = rawQ.replace(/[^a-z0-0]/g, '');
+    // 2. Check if user typed "SurahName AyatNumber" e.g., "baqarah 255" or "yasin 10"
+    let nameAndAyatMatch = rawQ.match(/^([a-z\s]+)\s+(\d+)$/);
+    let targetAyatFromText = null;
+    let queryText = rawQ;
+
+    if(nameAndAyatMatch) {
+        queryText = nameAndAyatMatch[1].trim();
+        targetAyatFromText = parseInt(nameAndAyatMatch[2]);
+    }
+
+    const cleanQ = queryText.replace(/[^a-z0-9]/g, '');
 
     const filtered = surahList.filter(s => {
         let engName = s.englishName.toLowerCase();
@@ -203,23 +213,30 @@ function filterSurahList() {
         let arName = s.name.toLowerCase();
         let num = s.number.toString();
 
-        if (cleanEngName.includes(cleanQ) || arName.includes(rawQ) || num === rawQ) {
+        // Exact or Substring match
+        if (cleanEngName.includes(cleanQ) || arName.includes(queryText) || num === queryText) {
             return true;
         }
 
-        // Fuzzy match: check if sequence of letters match roughly
+        // Fuzzy match for Typos (phonetic similarity)
         let searchChars = cleanQ.split('');
-        let matchCount = 0;
-        let lastIndex = -1;
+        let matches = 0;
+        let pos = 0;
         for (let char of searchChars) {
-            let foundIndex = cleanEngName.indexOf(char, lastIndex + 1);
-            if (foundIndex > lastIndex) {
-                matchCount++;
-                lastIndex = foundIndex;
+            let index = cleanEngName.indexOf(char, pos);
+            if (index !== -1) {
+                matches++;
+                pos = index + 1;
             }
         }
-        return (matchCount / searchChars.length) >= 0.7;
+        return (matches / cleanQ.length) >= 0.6;
     });
+
+    // If user searched like "baqarah 255" and we found exact Surah, open directly
+    if(nameAndAyatMatch && filtered.length > 0) {
+        openSurahDetail(filtered[0].number, filtered[0].englishName, targetAyatFromText);
+        return;
+    }
 
     renderSurahList(filtered);
 }
@@ -246,6 +263,7 @@ function openSurahDetail(surahNum, englishName, targetAyat = null) {
                 </div>
             `).join('');
 
+            // Scroll directly to target Ayat if specified
             if(targetAyat && targetAyat <= arAyahs.length) {
                 setTimeout(() => {
                     let el = document.getElementById(`aya-${targetAyat}`);
@@ -321,12 +339,13 @@ function loadJournalNotes() {
     `).join('');
 }
 
-// Fixed Nearby Mosques Search with Full Radius View
+// Flexible Mosque Search by Current GPS Location or Custom Elaka / Area
 function searchMosquesMap() {
     if(currentLat && currentLng) {
-        window.open(`https://www.google.com/maps/search/mosques/@${currentLat},${currentLng},15z`, '_blank');
+        window.open(`https://www.google.com/maps/search/mosque/@${currentLat},${currentLng},16z`, '_blank');
     } else {
-        window.open(`https://www.google.com/maps/search/mosques+near+${encodeURIComponent(currentCity)}`, '_blank');
+        let areaQuery = encodeURIComponent(`mosque in ${currentCity}`);
+        window.open(`https://www.google.com/maps/search/${areaQuery}`, '_blank');
     }
 }
 
