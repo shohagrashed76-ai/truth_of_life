@@ -4,6 +4,7 @@ let currentLat = localStorage.getItem('userLat') || null;
 let currentLng = localStorage.getItem('userLng') || null;
 let surahList = [];
 let tasbihCount = 0;
+let qiblaHeading = 288; // Default for BD approx
 
 function switchTab(tabId, btnEl) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -150,9 +151,28 @@ function useCurrentLocation() {
                 closeLocationModal();
             },
             err => {
-                alert("Please enable Phone GPS / Location Services.");
+                // IP Geolocation Fallback
+                fetch('https://ipapi.co/json/')
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data && data.city) {
+                            currentCity = data.city;
+                            currentLat = data.latitude;
+                            currentLng = data.longitude;
+                            localStorage.setItem('userCity', currentCity);
+                            localStorage.setItem('userLat', currentLat);
+                            localStorage.setItem('userLng', currentLng);
+                            fetchPrayerTimes();
+                            closeLocationModal();
+                        } else {
+                            alert("Location detect kora jaini. City name search korun.");
+                        }
+                    })
+                    .catch(() => {
+                        alert("Location service enable korun ba city search korun.");
+                    });
             },
-            { enableHighAccuracy: true, timeout: 10000 }
+            { enableHighAccuracy: true, timeout: 5000 }
         );
     }
 }
@@ -173,7 +193,7 @@ function renderSurahList(list) {
     if(!container) return;
     
     if(!list || list.length === 0) {
-        container.innerHTML = '<p style="text-align:center; padding:20px; color:#9ca3af;">No Surah Found!</p>';
+        container.innerHTML = '<p style="text-align:center; padding:20px; color:#9ca3af;">Kono Surah Pawa Jaini!</p>';
         return;
     }
 
@@ -195,7 +215,8 @@ function normalizeStr(str) {
     return str.toLowerCase().replace(/^al[\s\-']*/i, '').replace(/[^a-z0-9]/g, '');
 }
 
-function filterSurahList() {
+// Search execution only on Submit / Enter / Selection, typeing-e filtering dekhabe
+function filterSurahList(isSubmit = false) {
     const rawInput = document.getElementById('quranSearchInput').value.trim();
     if(!rawInput) {
         renderSurahList(surahList);
@@ -209,7 +230,7 @@ function filterSurahList() {
     if(numColonNum) {
         let surahNum = parseInt(numColonNum[1]);
         targetAyat = parseInt(numColonNum[2]);
-        if(surahNum >= 1 && surahNum <= 114) {
+        if(isSubmit && surahNum >= 1 && surahNum <= 114) {
             let sObj = surahList.find(s => s.number === surahNum);
             openSurahDetail(surahNum, sObj ? sObj.englishName : `Surah ${surahNum}`, targetAyat);
             return;
@@ -224,16 +245,6 @@ function filterSurahList() {
 
     const cleanQuery = normalizeStr(searchStr);
 
-    let exactMatch = surahList.find(s => {
-        let cleanName = normalizeStr(s.englishName);
-        return cleanName === cleanQuery || s.number.toString() === cleanQuery;
-    });
-
-    if(exactMatch) {
-        openSurahDetail(exactMatch.number, exactMatch.englishName, targetAyat);
-        return;
-    }
-
     const filtered = surahList.filter(s => {
         let cleanEng = normalizeStr(s.englishName);
         let arName = s.name.toLowerCase();
@@ -245,8 +256,12 @@ function filterSurahList() {
         return false;
     });
 
-    if(filtered.length === 1 && targetAyat) {
-        openSurahDetail(filtered[0].number, filtered[0].englishName, targetAyat);
+    if(isSubmit) {
+        if(filtered.length > 0) {
+            openSurahDetail(filtered[0].number, filtered[0].englishName, targetAyat);
+        } else {
+            alert("Surah ba Ayat khunje pawa jaini!");
+        }
         return;
     }
 
@@ -279,7 +294,10 @@ function openSurahDetail(surahNum, englishName, targetAyat = null) {
                 if(targetAyat && targetAyat <= arAyahs.length) {
                     setTimeout(() => {
                         let el = document.getElementById(`aya-${targetAyat}`);
-                        if(el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        if(el) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            el.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
+                        }
                     }, 400);
                 }
             }
@@ -300,12 +318,35 @@ function openFeature(feat) {
     document.querySelectorAll('.sub-view').forEach(el => el.style.display = 'none');
     document.getElementById(`view-${feat}`).style.display = 'block';
 
+    if(feat === 'qibla') initQiblaCompass();
     if(feat === 'duas') loadDuas();
     if(feat === 'journal') loadJournalNotes();
 }
 
 function closeSubView() {
     document.querySelectorAll('.sub-view').forEach(el => el.style.display = 'none');
+}
+
+// Dynamic Compass & Motion Sensor Logic
+function initQiblaCompass() {
+    if (window.DeviceOrientationEvent) {
+        window.addEventListener('deviceorientation', handleOrientation, true);
+    }
+}
+
+function handleOrientation(event) {
+    let compass = event.alpha;
+    if (event.webkitCompassHeading) {
+        compass = event.webkitCompassHeading; // iOS support
+    }
+    if (compass !== null && compass !== undefined) {
+        let heading = Math.round(compass);
+        let compassEl = document.querySelector('#view-qibla .qibla-compass-icon');
+        if (compassEl) {
+            compassEl.style.transform = `rotate(${-heading}deg)`;
+            compassEl.style.transition = 'transform 0.2s ease-out';
+        }
+    }
 }
 
 function loadDuas() {
@@ -364,4 +405,15 @@ function searchMosquesMap() {
 document.addEventListener('DOMContentLoaded', () => {
     fetchPrayerTimes();
     initQuranList();
+
+    const searchInput = document.getElementById('quranSearchInput');
+    if(searchInput) {
+        searchInput.addEventListener('keyup', (e) => {
+            if(e.key === 'Enter') {
+                filterSurahList(true);
+            } else {
+                filterSurahList(false);
+            }
+        });
+    }
 });
