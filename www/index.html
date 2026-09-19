@@ -16,7 +16,7 @@
             <div class="header">
                 <div>
                     <h2 id="display-date">১৬ সেপ্টেম্বর, ২০২৪</h2>
-                    <p id="display-hijri">১২ রبيع الأول ১৪৪৬ হিজরী</p>
+                    <p id="display-hijri">১২ ربيع الأول ১৪৪৬ হিজরী</p>
                 </div>
                 <button class="icon-btn" onclick="openLocationModal()"><i class="fa-solid fa-location-dot"></i></button>
             </div>
@@ -74,9 +74,17 @@
         <!-- Tab 2: Prayers -->
         <div id="tab-prayers" class="tab-content">
             <div class="header">
-                <h2>আজকের নামাজের সময়সূচী</h2>
+                <h2>নামাজের সময়সূচী</h2>
                 <button class="icon-btn" onclick="openLocationModal()"><i class="fa-solid fa-location-dot"></i></button>
             </div>
+            
+            <!-- Date Navigation Controls -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 10px;">
+                <button onclick="changeDate(-1)" class="icon-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                <span id="prayer-nav-date" style="font-weight: bold; color: #10b981;">আজকের সময়সূচী</span>
+                <button onclick="changeDate(1)" class="icon-btn"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+
             <p style="color: #9ca3af; margin-bottom: 15px;"><i class="fa-solid fa-location-pin"></i> স্থান: <span class="city-display-name">Darsana</span></p>
 
             <div class="prayer-list">
@@ -103,8 +111,14 @@
             </div>
 
             <div id="quran-detail-view" style="display: none;">
-                <button class="back-btn" onclick="closeSurahDetail()"><i class="fa-solid fa-arrow-left"></i> ফিরে যান</button>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <button class="back-btn" onclick="closeSurahDetail()"><i class="fa-solid fa-arrow-left"></i> ফিরে যান</button>
+                    <button id="audioToggleBtn" onclick="toggleSurahAudio()" style="background: #10b981; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer;">
+                        <i class="fa-solid fa-play"></i> তেলাওয়াত শুনুন
+                    </button>
+                </div>
                 <h2 id="surahDetailTitle" style="text-align: center; margin: 15px 0; color: #10b981;"></h2>
+                <audio id="surahAudioPlayer" style="display:none;"></audio>
                 <div id="ayatsContainer"></div>
             </div>
         </div>

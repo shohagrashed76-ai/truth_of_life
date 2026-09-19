@@ -5,6 +5,7 @@ let currentLng = localStorage.getItem('userLng') || null;
 let qiblaAngle = 277;
 let surahList = [];
 let tasbihCount = 0;
+let currentPlayingSurah = null;
 
 function switchTab(tabId, btnEl) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -38,6 +39,11 @@ function checkJummahDay() {
     }
 }
 
+function changeDate(days) {
+    currentDate.setDate(currentDate.getDate() + days);
+    fetchPrayerTimes();
+}
+
 function fetchPrayerTimes() {
     checkJummahDay();
 
@@ -45,7 +51,15 @@ function fetchPrayerTimes() {
     const month = currentDate.getMonth() + 1;
     const year = currentDate.getFullYear();
 
-    document.getElementById('display-date').innerText = currentDate.toLocaleDateString('bn-BD', { month: 'long', day: 'numeric', year: 'numeric' });
+    const formattedDateBN = currentDate.toLocaleDateString('bn-BD', { month: 'long', day: 'numeric', year: 'numeric' });
+    document.getElementById('display-date').innerText = formattedDateBN;
+    
+    const navDateEl = document.getElementById('prayer-nav-date');
+    if(navDateEl) {
+        const todayStr = new Date().toDateString();
+        navDateEl.innerText = (currentDate.toDateString() === todayStr) ? "আজকের সময়সূচী" : formattedDateBN;
+    }
+
     updateCityDisplays(currentCity);
 
     let primaryUrl = (currentLat && currentLng) 
@@ -68,7 +82,7 @@ function fetchPrayerTimes() {
             document.getElementById('time-maghrib').innerText = timings.Maghrib;
             document.getElementById('time-isha').innerText = timings.Isha;
 
-            updateNextPrayerCard(timings);
+            updatePrayerHighlightAndCountdown(timings);
         }
     };
 
@@ -88,6 +102,62 @@ function fetchPrayerTimes() {
     calculateQibla();
 }
 
+function updatePrayerHighlightAndCountdown(timings) {
+    const now = new Date();
+    const isToday = (currentDate.toDateString() === now.toDateString());
+
+    document.querySelectorAll('.p-row').forEach(el => el.classList.remove('active'));
+
+    const prayerList = [
+        { name: 'ফজর', time: timings.Fajr, key: 'Fajr' },
+        { name: 'সূর্যোদয়', time: timings.Sunrise, key: 'Sunrise' },
+        { name: 'জোহর', time: timings.Dhuhr, key: 'Dhuhr' },
+        { name: 'আসর', time: timings.Asr, key: 'Asr' },
+        { name: 'মাগরিব', time: timings.Maghrib, key: 'Maghrib' },
+        { name: 'ইশা', time: timings.Isha, key: 'Isha' }
+    ];
+
+    let currentPrayerObj = prayerList[0];
+    let nextPrayerObj = null;
+    let nextPrayerTimeDate = null;
+
+    for (let i = 0; i < prayerList.length; i++) {
+        const [h, m] = prayerList[i].time.split(':').map(Number);
+        const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+        
+        if (now >= pDate) {
+            currentPrayerObj = prayerList[i];
+        } else {
+            nextPrayerObj = prayerList[i];
+            nextPrayerTimeDate = pDate;
+            break;
+        }
+    }
+
+    if (!nextPrayerObj) {
+        nextPrayerObj = prayerList[0];
+        const [h, m] = nextPrayerObj.time.split(':').map(Number);
+        nextPrayerTimeDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, h, m);
+    }
+
+    if (isToday) {
+        const rowEl = document.getElementById(`row-${currentPrayerObj.key}`);
+        if (rowEl) rowEl.classList.add('active');
+
+        document.getElementById('current-prayer-name').innerText = `পরবর্তী নামাজ: ${nextPrayerObj.name}`;
+        document.getElementById('current-prayer-time').innerText = nextPrayerObj.time;
+
+        const diffMs = nextPrayerTimeDate - now;
+        const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        document.getElementById('next-prayer-countdown').innerText = `বাকি আছে ${diffHrs} ঘণ্টা ${diffMins} মিনিট (${nextPrayerObj.name})`;
+    } else {
+        document.getElementById('current-prayer-name').innerText = `ফজর (তারিখ পরিবর্তন করা হয়েছে)`;
+        document.getElementById('current-prayer-time').innerText = timings.Fajr;
+        document.getElementById('next-prayer-countdown').innerText = `তারিখ: ${currentDate.toLocaleDateString('bn-BD')}`;
+    }
+}
+
 function calculateQibla() {
     if (currentLat && currentLng) {
         let lat = parseFloat(currentLat) * Math.PI / 180;
@@ -99,50 +169,6 @@ function calculateQibla() {
         let x = Math.cos(lat) * Math.tan(meccaLat) - Math.sin(lat) * Math.cos(meccaLng - lng);
         qiblaAngle = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
     }
-}
-
-function updateNextPrayerCard(timings) {
-    const now = new Date();
-    const prayerOrder = [
-        { name: 'ফজর', time: timings.Fajr, key: 'Fajr' },
-        { name: 'সূর্যোদয়', time: timings.Sunrise, key: 'Sunrise' },
-        { name: 'জোহর', time: timings.Dhuhr, key: 'Dhuhr' },
-        { name: 'আসর', time: timings.Asr, key: 'Asr' },
-        { name: 'মাগরিব', time: timings.Maghrib, key: 'Maghrib' },
-        { name: 'ইশা', time: timings.Isha, key: 'Isha' }
-    ];
-
-    document.querySelectorAll('.p-row').forEach(el => el.classList.remove('active'));
-
-    let nextPrayer = null;
-    let nextPrayerTimeDate = null;
-
-    for (let p of prayerOrder) {
-        const [h, m] = p.time.split(':').map(Number);
-        const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
-        if (pDate > now) {
-            nextPrayer = p;
-            nextPrayerTimeDate = pDate;
-            break;
-        }
-    }
-
-    if (!nextPrayer) {
-        nextPrayer = prayerOrder[0];
-        const [h, m] = nextPrayer.time.split(':').map(Number);
-        nextPrayerTimeDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, h, m);
-    }
-
-    document.getElementById('current-prayer-name').innerText = `পরবর্তী নামাজ: ${nextPrayer.name}`;
-    document.getElementById('current-prayer-time').innerText = nextPrayer.time;
-
-    const rowEl = document.getElementById(`row-${nextPrayer.key}`);
-    if(rowEl) rowEl.classList.add('active');
-
-    const diffMs = nextPrayerTimeDate - now;
-    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    document.getElementById('next-prayer-countdown').innerText = `বাকি আছে ${diffHrs} ঘণ্টা ${diffMins} মিনিট (${nextPrayer.name})`;
 }
 
 function openLocationModal() { document.getElementById('locationModal').style.display = 'flex'; }
@@ -173,7 +199,7 @@ function useCurrentLocation() {
                 localStorage.setItem('userCity', currentCity);
                 fetchPrayerTimes(); 
                 closeLocationModal();
-                alert("জিপিএস লোকেশন সফলভাবে সেভ করা হয়েছে!");
+                alert("জিপিএস লোকেশন সফলভাবে সেট করা হয়েছে!");
             },
             err => {
                 fetch('https://ipapi.co/json/')
@@ -190,10 +216,10 @@ function useCurrentLocation() {
                             closeLocationModal();
                             alert("লোকেশন সেট করা হয়েছে!");
                         } else {
-                            alert("অনুগ্রহ করে মোবাইলের জিপিএস/লোকেশন সার্ভিস চালূ করুন।");
+                            alert("অনুগ্রহ করে মোবাইলের জিপিএস/লোকেশন সার্ভিস চালু করুন।");
                         }
                     })
-                    .catch(() => alert("অনুগ্রহ করে মোবাইলের জিপিএস/লোকেশন সার্ভিস চালূ করুন।"));
+                    .catch(() => alert("অনুগ্রহ করে মোবাইলের জিপিএস/লোকেশন সার্ভিস চালু করুন।"));
             },
             { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
         );
@@ -293,6 +319,14 @@ function openSurahDetail(surahNum, englishName, targetAyat = null) {
     document.getElementById('quran-detail-view').style.display = 'block';
     document.getElementById('surahDetailTitle').innerText = englishName || `সূরা ${surahNum}`;
     
+    currentPlayingSurah = surahNum;
+    const player = document.getElementById('surahAudioPlayer');
+    const paddedNum = String(surahNum).padStart(3, '0');
+    player.src = `https://server8.mp3quran.net/afs/${paddedNum}.mp3`;
+    
+    const audioBtn = document.getElementById('audioToggleBtn');
+    if(audioBtn) audioBtn.innerHTML = `<i class="fa-solid fa-play"></i> তেলাওয়াত শুনুন`;
+
     const container = document.getElementById('ayatsContainer');
     container.innerHTML = '<p style="text-align:center; padding:20px; color:#9ca3af;">সূরা লোড হচ্ছে...</p>';
 
@@ -342,12 +376,29 @@ function openSurahDetail(surahNum, englishName, targetAyat = null) {
         });
 }
 
+function toggleSurahAudio() {
+    const player = document.getElementById('surahAudioPlayer');
+    const audioBtn = document.getElementById('audioToggleBtn');
+    
+    if (player.paused) {
+        player.play();
+        audioBtn.innerHTML = `<i class="fa-solid fa-pause"></i> থামান`;
+        audioBtn.style.background = '#ef4444';
+    } else {
+        player.pause();
+        audioBtn.innerHTML = `<i class="fa-solid fa-play"></i> তেলাওয়াত শুনুন`;
+        audioBtn.style.background = '#10b981';
+    }
+}
+
 function openSurahDirect(surahNum) {
     switchTab('quran');
     openSurahDetail(surahNum, 'সূরা আল-কাহফ');
 }
 
 function closeSurahDetail() {
+    const player = document.getElementById('surahAudioPlayer');
+    if(player) player.pause();
     document.getElementById('quran-detail-view').style.display = 'none';
     document.getElementById('quran-list-view').style.display = 'block';
 }
