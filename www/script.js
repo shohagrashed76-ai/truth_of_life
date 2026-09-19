@@ -2,7 +2,7 @@ let currentDate = new Date();
 let currentCity = localStorage.getItem('userCity') || 'Darsana';
 let currentLat = localStorage.getItem('userLat') || null;
 let currentLng = localStorage.getItem('userLng') || null;
-let qiblaAngle = 277; // Default Qibla angle for BD (~277 deg)
+let qiblaAngle = 277;
 let surahList = [];
 let tasbihCount = 0;
 
@@ -26,7 +26,21 @@ function updateCityDisplays(name) {
     document.querySelectorAll('.city-display-name').forEach(el => el.innerText = name);
 }
 
+function checkJummahDay() {
+    const today = currentDate.getDay(); // 5 = Friday
+    const jummahCard = document.getElementById('jummah-card');
+    if (jummahCard) {
+        if (today === 5) {
+            jummahCard.style.display = 'flex';
+        } else {
+            jummahCard.style.display = 'none';
+        }
+    }
+}
+
 function fetchPrayerTimes() {
+    checkJummahDay();
+
     const day = currentDate.getDate();
     const month = currentDate.getMonth() + 1;
     const year = currentDate.getFullYear();
@@ -131,11 +145,6 @@ function updateNextPrayerCard(timings) {
     document.getElementById('next-prayer-countdown').innerText = `বাকি আছে ${diffHrs} ঘণ্টা ${diffMins} মিনিট (${nextPrayer.name})`;
 }
 
-function changeDate(days) {
-    currentDate.setDate(currentDate.getDate() + days);
-    fetchPrayerTimes();
-}
-
 function openLocationModal() { document.getElementById('locationModal').style.display = 'flex'; }
 function closeLocationModal() { document.getElementById('locationModal').style.display = 'none'; }
 
@@ -158,21 +167,38 @@ function useCurrentLocation() {
             pos => {
                 currentLat = pos.coords.latitude; 
                 currentLng = pos.coords.longitude;
-                currentCity = 'GPS Location';
+                currentCity = 'বর্তমান স্থান';
                 localStorage.setItem('userLat', currentLat); 
                 localStorage.setItem('userLng', currentLng);
                 localStorage.setItem('userCity', currentCity);
                 fetchPrayerTimes(); 
                 closeLocationModal();
-                alert("GPS Location Safolvabe Set Hoya Geche!");
+                alert("জিপিএস লোকেশন সফলভাবে সেভ করা হয়েছে!");
             },
             err => {
-                alert("GPS Location On Korun ba Permissn Din.");
+                fetch('https://ipapi.co/json/')
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data && data.latitude && data.longitude) {
+                            currentLat = data.latitude;
+                            currentLng = data.longitude;
+                            currentCity = data.city || 'বর্তমান স্থান';
+                            localStorage.setItem('userLat', currentLat);
+                            localStorage.setItem('userLng', currentLng);
+                            localStorage.setItem('userCity', currentCity);
+                            fetchPrayerTimes();
+                            closeLocationModal();
+                            alert("লোকেশন সেট করা হয়েছে!");
+                        } else {
+                            alert("অনুগ্রহ করে মোবাইলের জিপিএস/লোকেশন সার্ভিস চালূ করুন।");
+                        }
+                    })
+                    .catch(() => alert("অনুগ্রহ করে মোবাইলের জিপিএস/লোকেশন সার্ভিস চালূ করুন।"));
             },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
         );
     } else {
-        alert("GPS Support Korche Na.");
+        alert("আপনার ডিভাইসে জিপিএস সাপোর্ট করে না।");
     }
 }
 
@@ -355,7 +381,6 @@ function handleOrientation(event) {
         let dialEl = document.getElementById('compassDial');
         let degEl = document.getElementById('compassDegreeText');
         let dirEl = document.getElementById('compassDirText');
-        let qiblaIconEl = document.getElementById('qiblaPointer');
 
         if (dialEl) {
             dialEl.style.transform = `rotate(${-heading}deg)`;
@@ -370,11 +395,6 @@ function handleOrientation(event) {
             let index = Math.round(heading / 45) % 8;
             dirEl.innerText = dirs[index];
         }
-
-        if (qiblaIconEl) {
-            let relativeQibla = qiblaAngle - heading;
-            qiblaIconEl.style.transform = `rotate(${relativeQibla}deg)`;
-        }
     }
 }
 
@@ -384,7 +404,7 @@ function loadDuas() {
         { title: "ঘুমোতে যাওয়ার দোয়া", ar: "بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي ، وَبِكَ أَرْفَعُهُ", bn: "উচ্চারণ: বিসমিকা রব্বি ওয়াদাতু জাম্বি ওয়া বিকা আরফাউহ।\nঅর্থ: হে আমার প্রতিপালক! আপনার নাম নিয়েই আমি শয়ন করলাম এবং আপনার নামেই পুনরায় উঠব।" },
         { title: "খাবার খাওয়ার আগের দোয়া", ar: "بِسْمِ اللهِ", bn: "উচ্চারণ: বিসমিল্লাহ।\nঅর্থ: আল্লাহর নামে শুরু করছি।" },
         { title: "খাবার খাওয়ার পরের দোয়া", ar: "الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مِنَ الْمُسْلِمِينَ", bn: "উচ্চারণ: আলহামদু লিল্লাহিল্লাজি আত'আমানা ওয়া সাকানা ওয়া জা'আলানা মিনাল মুসলিমিন।\nঅর্থ: সমস্ত প্রশংসা আল্লাহর জন্য, যিনি আমাদের আহার করিয়েছেন, পানীয় দান করেছেন এবং মুসলিম হিসেবে সৃষ্টি করেছেন।" },
-        { title: "ঘর থেকে বের হওয়ার দোয়া", ar: "بِسْمِ اللهِ تَوَكَّلْتُ عَلَى اللهِ وَلاَ حَوْلَ وَلاَ قُوَّةَ إِلاَّ بَاللَّهِ", bn: "উচ্চারণ: বিসমিল্লাহি তাওয়াক্কালতু আলাল্লাহ, ওয়া লা হাওলা ওয়া লা কুওয়াতা ইল্লা বিল্লাহ।\nঅর্থ: আল্লাহর নামে বের হচ্ছি, আল্লাহর ওপর সম্পূর্ণ ভরসা করলাম।" },
+        { title: "ঘর থেকে বের হওয়ার দোয়া", ar: "بِسْمِ اللهِ تَوَكَّلْتُ عَلَى اللهِ وَلاَ حَوْلَ وَلاَ قُوَّةَ إِلاَّ بِاللَّهِ", bn: "উচ্চারণ: বিসমিল্লাহি তাওয়াক্কালতু আলাল্লাহ, ওয়া লা হাওলা ওয়া লা কুওয়াতা ইল্লা বিল্লাহ।\nঅর্থ: আল্লাহর নামে বের হচ্ছি, আল্লাহর ওপর সম্পূর্ণ ভরসা করলাম।" },
         { title: "মসজিদে প্রবেশের দোয়া", ar: "اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ", bn: "উচ্চারণ: আল্লাহুম্মাফতাহ লি আবওয়াবা রহমাতিক।\nঅর্থ: হে আল্লাহ! আমার জন্য আপনার রহমতের দরজাগুলো খুলে দিন।" },
         { title: "মসজিদ থেকে বের হওয়ার দোয়া", ar: "اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ", bn: "উচ্চারণ: আল্লাহুম্মা ইন্নি আসআলুকা মিন ফাদলিক।\nঅর্থ: হে আল্লাহ! আমি আপনার নিকট অনুগ্রহ ও বরকত প্রার্থনা করছি।" },
         { title: "টয়লেটে প্রবেশের দোয়া", ar: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ", bn: "উচ্চারণ: আল্লাহুম্মা ইন্নি আউজু বিকা মিনাল খুবুসি ওয়াল খাবাইস।\nঅর্থ: হে আল্লাহ! আমি অপবিত্র শয়তান থেকে আপনার আশ্রয় প্রার্থনা করছি।" },
@@ -433,9 +453,9 @@ function loadJournalNotes() {
 
 function searchMosquesMap() {
     if(currentLat && currentLng) {
-        window.open(`https://www.google.com/maps/search/mosque/@${currentLat},${currentLng},16z`, '_system');
+        window.open(`https://www.google.com/maps/search/mosque/@${currentLat},${currentLng},15z`);
     } else {
-        window.open(`https://www.google.com/maps/search/mosque+near+me/`, '_system');
+        window.open(`https://www.google.com/maps/search/mosque+near+me`);
     }
 }
 

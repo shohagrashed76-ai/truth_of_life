@@ -1,197 +1,191 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Islamic App</title>
+    <title>Truth of Life</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Home Tab -->
-    <div id="tab-home" class="tab-content active">
-        <div class="card prayer-banner">
-            <div class="banner-top">
-                <span class="now-badge" id="current-prayer-name">--</span>
-                <span id="location-name-home" onclick="openLocationModal()" style="cursor:pointer;">
-                    <i class="fa-solid fa-location-dot"></i> <span class="city-display-name">Chuadanga</span>
-                </span>
+    <div class="app-container">
+        <!-- Tab 1: Home -->
+        <div id="tab-home" class="tab-content active">
+            <div class="header">
+                <div>
+                    <h2 id="display-date">১৬ সেপ্টেম্বর, ২০২৪</h2>
+                    <p id="display-hijri">১২ রبيع الأول ১৪৪৬ হিজরী</p>
+                </div>
+                <button class="icon-btn" onclick="openLocationModal()"><i class="fa-solid fa-location-dot"></i></button>
             </div>
-            <h1 id="current-prayer-time">--:--</h1>
-            <p id="next-prayer-countdown">Calculating time...</p>
-            <div class="banner-footer" onclick="switchTab('prayers')">
-                <span>View all prayer times</span>
-                <i class="fa-solid fa-arrow-right"></i>
+
+            <!-- Next Prayer Card -->
+            <div class="card main-card">
+                <div class="card-top">
+                    <span id="current-prayer-name">পরবর্তী নামাজ: মাগরিব</span>
+                    <span class="location-badge"><i class="fa-solid fa-location-crosshairs"></i> <span class="city-display-name">Darsana</span></span>
+                </div>
+                <h1 id="current-prayer-time">18:04</h1>
+                <p id="next-prayer-countdown">বাকি আছে ২ ঘণ্টা ১৬ মিনিট (মাগরিব)</p>
+                <a href="#" class="link-btn" onclick="switchTab('prayers')">সকল নামাজের সময় দেখুন &rarr;</a>
+            </div>
+
+            <!-- Jummah Banner (Dynamic - Only Shows on Fridays) -->
+            <div id="jummah-card" class="card jummah-card" style="display: none;" onclick="openSurahDirect(18)">
+                <i class="fa-solid fa-mosque card-icon"></i>
+                <div>
+                    <h3>জুম্মা মুবারক</h3>
+                    <p>আজ সূরা আল-কাহফ পাঠ করুন &rarr;</p>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <h3 class="section-title">ফিচারসমূহ</h3>
+            <div class="features-grid">
+                <div class="feature-item" onclick="openFeature('qibla')">
+                    <i class="fa-solid fa-compass"></i>
+                    <span>কিবলা</span>
+                </div>
+                <div class="feature-item" onclick="switchTab('quran')">
+                    <i class="fa-solid fa-quran"></i>
+                    <span>কুরআন</span>
+                </div>
+                <div class="feature-item" onclick="openFeature('duas')">
+                    <i class="fa-solid fa-hands-praying"></i>
+                    <span>দোয়া</span>
+                </div>
+                <div class="feature-item" onclick="openFeature('tasbih')">
+                    <i class="fa-solid fa-calculator"></i>
+                    <span>তসবিহ</span>
+                </div>
+                <div class="feature-item" onclick="openFeature('journal')">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>জার্নাল</span>
+                </div>
+                <div class="feature-item" onclick="searchMosquesMap()">
+                    <i class="fa-solid fa-mosque"></i>
+                    <span>মসজিদ</span>
+                </div>
             </div>
         </div>
 
-        <div class="card jummah-card" onclick="openSurahDirect(18)">
-            <div class="jummah-icon"><i class="fa-solid fa-mosque"></i></div>
-            <div>
-                <small>Jummah Mubarak</small>
-                <h4>Read Sura Al-Kahf today →</h4>
+        <!-- Tab 2: Prayers -->
+        <div id="tab-prayers" class="tab-content">
+            <div class="header">
+                <h2>আজকের নামাজের সময়সূচী</h2>
+                <button class="icon-btn" onclick="openLocationModal()"><i class="fa-solid fa-location-dot"></i></button>
+            </div>
+            <p style="color: #9ca3af; margin-bottom: 15px;"><i class="fa-solid fa-location-pin"></i> স্থান: <span class="city-display-name">Darsana</span></p>
+
+            <div class="prayer-list">
+                <div class="p-row" id="row-Fajr"><span>ফজর</span><strong id="time-fajr">--:--</strong></div>
+                <div class="p-row" id="row-Sunrise"><span>সূর্যোদয়</span><strong id="time-sunrise">--:--</strong></div>
+                <div class="p-row" id="row-Dhuhr"><span>জোহর</span><strong id="time-dhuhr">--:--</strong></div>
+                <div class="p-row" id="row-Asr"><span>আসর</span><strong id="time-asr">--:--</strong></div>
+                <div class="p-row" id="row-Maghrib"><span>মাগরিব</span><strong id="time-maghrib">--:--</strong></div>
+                <div class="p-row" id="row-Isha"><span>ইশা</span><strong id="time-isha">--:--</strong></div>
             </div>
         </div>
 
-        <h3>Features</h3>
-        <div class="features-grid">
-            <div class="feat-card" onclick="openFeature('qibla')"><i class="fa-solid fa-compass"></i><span>Qibla</span></div>
-            <div class="feat-card" onclick="switchTab('quran')"><i class="fa-solid fa-book-quran"></i><span>Quran</span></div>
-            <div class="feat-card" onclick="openFeature('duas')"><i class="fa-solid fa-hands-praying"></i><span>Duas</span></div>
-            <div class="feat-card" onclick="openFeature('tasbih')"><i class="fa-solid fa-dhikr"></i><span>Tasbih</span></div>
-            <div class="feat-card" onclick="openFeature('journal')"><i class="fa-solid fa-book-open"></i><span>Journal</span></div>
-            <div class="feat-card" onclick="openFeature('mosque')"><i class="fa-solid fa-mosque"></i><span>Mosques</span></div>
+        <!-- Tab 3: Quran -->
+        <div id="tab-quran" class="tab-content">
+            <div id="quran-list-view">
+                <div class="header">
+                    <h2>আল-কুরআন</h2>
+                </div>
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="quranSearchInput" placeholder="সূরা বা আয়াত খুঁজুন (যেমন: Bakarah 255)">
+                </div>
+                <div id="surahListContainer" class="surah-list"></div>
+            </div>
+
+            <div id="quran-detail-view" style="display: none;">
+                <button class="back-btn" onclick="closeSurahDetail()"><i class="fa-solid fa-arrow-left"></i> ফিরে যান</button>
+                <h2 id="surahDetailTitle" style="text-align: center; margin: 15px 0; color: #10b981;"></h2>
+                <div id="ayatsContainer"></div>
+            </div>
+        </div>
+
+        <!-- Sub Feature Views -->
+        <!-- Qibla View -->
+        <div id="view-qibla" class="sub-view" style="display: none;">
+            <button class="back-btn" onclick="closeSubView()"><i class="fa-solid fa-arrow-left"></i> ফিরে যান</button>
+            <h2 style="text-align:center; margin-top:10px;">কিবলা কম্পাস</h2>
+            <p style="text-align:center; color:#9ca3af; font-size:0.9rem;">আপনার ফোনকে সমতল জায়গায় রাখুন</p>
+            
+            <div class="compass-wrapper" style="text-align:center; margin-top:30px;">
+                <div id="compassDial" class="compass-dial" style="width: 260px; height: 260px; border-radius: 50%; border: 4px solid #10b981; margin: 0 auto; position: relative; transition: transform 0.2s ease-out; background: rgba(16, 185, 129, 0.05);">
+                    <div id="qiblaPointer" style="position: absolute; top: 10px; left: calc(50% - 12px); font-size: 24px; color: #f59e0b; transform-origin: 12px 120px;"><i class="fa-solid fa-kaaba"></i></div>
+                    <div style="position: absolute; top: 10px; left: calc(50% - 6px); color: #ef4444; font-weight: bold;">N</div>
+                    <div style="position: absolute; bottom: 10px; left: calc(50% - 5px); color: #fff;">S</div>
+                    <div style="position: absolute; right: 12px; top: calc(50% - 10px); color: #fff;">E</div>
+                    <div style="position: absolute; left: 12px; top: calc(50% - 10px); color: #fff;">W</div>
+                </div>
+                <h1 id="compassDegreeText" style="margin-top:25px; font-size: 2.5rem; color:#10b981;">0°</h1>
+                <p id="compassDirText" style="font-size:1.2rem; color:#d1d5db;">North</p>
+            </div>
+        </div>
+
+        <!-- Duas View -->
+        <div id="view-duas" class="sub-view" style="display: none;">
+            <button class="back-btn" onclick="closeSubView()"><i class="fa-solid fa-arrow-left"></i> ফিরে যান</button>
+            <h2 style="margin: 15px 0;">দৈনন্দিন দোয়া</h2>
+            <div id="duasContainer"></div>
+        </div>
+
+        <!-- Tasbih View -->
+        <div id="view-tasbih" class="sub-view" style="display: none;">
+            <button class="back-btn" onclick="closeSubView()"><i class="fa-solid fa-arrow-left"></i> ফিরে যান</button>
+            <div style="text-align: center; margin-top: 40px;">
+                <i class="fa-solid fa-calculator" style="font-size: 3rem; color: #10b981; margin-bottom: 15px;"></i>
+                <h2>ডিজিটাল তসবিহ</h2>
+                <div style="font-size: 4rem; font-weight: bold; color: #10b981; margin: 30px 0;" id="tasbih-counter">0</div>
+                <button onclick="countTasbih()" style="width: 140px; height: 140px; border-radius: 50%; background: #10b981; color: white; font-size: 1.5rem; border: none; box-shadow: 0 4px 15px rgba(16,185,129,0.4);"><i class="fa-solid fa-fingerprint" style="font-size: 2.5rem;"></i></button>
+                <br><br>
+                <button onclick="resetTasbih()" class="back-btn" style="background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid #ef4444;"><i class="fa-solid fa-rotate-right"></i> রিসেট</button>
+            </div>
+        </div>
+
+        <!-- Journal View -->
+        <div id="view-journal" class="sub-view" style="display: none;">
+            <button class="back-btn" onclick="closeSubView()"><i class="fa-solid fa-arrow-left"></i> ফিরে যান</button>
+            <h2 style="margin: 15px 0;">ইসলামিক জার্নাল</h2>
+            <textarea id="journalInput" style="width: 100%; height: 100px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; padding: 10px;" placeholder="আজকের বিশেষ বিষয় বা নোট লিখুন..."></textarea>
+            <button onclick="saveJournalNote()" style="width: 100%; padding: 12px; background: #10b981; color: white; border: none; border-radius: 10px; margin-top: 10px; font-weight: bold;">নোট সেভ করুন</button>
+            <div id="journalNotesList" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Location Modal -->
+        <div id="locationModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h3>স্থান নির্বাচন করুন</h3>
+                <input type="text" id="citySearchInput" placeholder="শহরের নাম লিখুন (যেমন: Dhaka)">
+                <button onclick="searchCity()" style="width: 100%; padding: 10px; background: #10b981; color: white; border: none; border-radius: 8px; margin-top: 10px;">খুঁজুন</button>
+                <hr style="margin: 15px 0; border-color: rgba(255,255,255,0.1);">
+                <button onclick="useCurrentLocation()" style="width: 100%; padding: 10px; background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid #10b981; border-radius: 8px;"><i class="fa-solid fa-crosshairs"></i> জিপিএস লোকেশন ব্যবহার করুন</button>
+                <button onclick="closeLocationModal()" class="back-btn" style="width: 100%; margin-top: 10px; text-align: center;">বন্ধ করুন</button>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <button class="nav-btn active" onclick="switchTab('home', this)">
+                <i class="fa-solid fa-house"></i>
+                <span>হোম</span>
+            </button>
+            <button class="nav-btn" onclick="switchTab('prayers', this)">
+                <i class="fa-solid fa-clock"></i>
+                <span>সময়সূচী</span>
+            </button>
+            <button class="nav-btn" onclick="switchTab('quran', this)">
+                <i class="fa-solid fa-book-quran"></i>
+                <span>কুরআন</span>
+            </button>
         </div>
     </div>
-
-    <!-- Prayers Tab -->
-    <div id="tab-prayers" class="tab-content">
-        <div class="date-picker-bar">
-            <div class="date-info">
-                <h2 id="display-date">Today</h2>
-                <p id="display-hijri">Loading Hijri...</p>
-            </div>
-            <div class="date-controls">
-                <button onclick="changeDate(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-                <button onclick="changeDate(1)"><i class="fa-solid fa-chevron-right"></i></button>
-            </div>
-        </div>
-
-        <div class="location-picker-btn" onclick="openLocationModal()">
-            <i class="fa-solid fa-location-crosshairs"></i> Change Location (<span class="city-display-name">Chuadanga</span>)
-        </div>
-
-        <div class="prayer-container" id="prayer-list">
-            <div class="p-row" id="row-Fajr"><span>Fajr ✨</span><strong id="time-fajr">--:--</strong></div>
-            <div class="p-row" id="row-Sunrise"><span>Sunrise ☀️</span><strong id="time-sunrise">--:--</strong></div>
-            <div class="p-row" id="row-Dhuhr"><span>Dhuhr ☀️</span><strong id="time-dhuhr">--:--</strong></div>
-            <div class="p-row" id="row-Asr"><span>Asr ⛅</span><strong id="time-asr">--:--</strong></div>
-            <div class="p-row" id="row-Maghrib"><span>Maghrib 🌅</span><strong id="time-maghrib">--:--</strong></div>
-            <div class="p-row" id="row-Isha"><span>Isha'a 🌙</span><strong id="time-isha">--:--</strong></div>
-        </div>
-    </div>
-
-    <!-- Quran Tab -->
-    <div id="tab-quran" class="tab-content">
-        <!-- Surah List View -->
-        <div id="quran-list-view">
-            <div class="quran-search-box">
-                <input type="text" id="quranSearchInput" onkeyup="filterSurahList()" placeholder="Search Surah (e.g. Yaseen, Kahf, 36)">
-                <button><i class="fa-solid fa-magnifying-glass"></i></button>
-            </div>
-            <div id="surahListContainer" class="surah-list"></div>
-        </div>
-
-        <!-- Single Surah View -->
-        <div id="quran-detail-view" style="display:none;">
-            <div class="surah-header-bar">
-                <button class="back-btn" onclick="closeSurahDetail()"><i class="fa-solid fa-arrow-left"></i> Back</button>
-                <h3 id="surahDetailTitle">Surah Name</h3>
-                <div></div>
-            </div>
-            <div id="ayatsContainer" class="ayats-container"></div>
-        </div>
-    </div>
-
-    <!-- Feature Sub-Pages / Modals -->
-
-    <!-- Qibla View -->
-    <div id="view-qibla" class="sub-view">
-        <div class="sub-header">
-            <button onclick="closeSubView()"><i class="fa-solid fa-arrow-left"></i> Back</button>
-            <h3>Qibla Direction</h3>
-        </div>
-        <div class="qibla-container">
-            <i class="fa-solid fa-compass compass-icon"></i>
-            <p>Point your phone towards Qibla</p>
-            <h2 style="margin-top:15px; color:#10b981;">288° West-Northwest</h2>
-        </div>
-    </div>
-
-    <!-- Duas View -->
-    <div id="view-duas" class="sub-view">
-        <div class="sub-header">
-            <button onclick="closeSubView()"><i class="fa-solid fa-arrow-left"></i> Back</button>
-            <h3>Daily Duas</h3>
-        </div>
-        <div id="duasContainer" class="sub-content-list"></div>
-    </div>
-
-    <!-- Tasbih View -->
-    <div id="view-tasbih" class="sub-view">
-        <div class="sub-header">
-            <button onclick="closeSubView()"><i class="fa-solid fa-arrow-left"></i> Back</button>
-            <h3>Digital Tasbih</h3>
-        </div>
-        <div class="tasbih-container">
-            <h2 id="tasbih-phrase">SubhanAllah</h2>
-            <div class="tasbih-count" id="tasbih-counter">0</div>
-            <button class="tasbih-btn" onclick="countTasbih()">TAP</button>
-            <br>
-            <button class="reset-btn" onclick="resetTasbih()"><i class="fa-solid fa-rotate-right"></i> Reset</button>
-        </div>
-    </div>
-
-    <!-- Journal View -->
-    <div id="view-journal" class="sub-view">
-        <div class="sub-header">
-            <button onclick="closeSubView()"><i class="fa-solid fa-arrow-left"></i> Back</button>
-            <h3>Islamic Journal</h3>
-        </div>
-        <div style="padding:15px;">
-            <textarea id="journalInput" placeholder="Write your daily Islamic reflection, Dua or notes..."></textarea>
-            <button class="action-btn" onclick="saveJournalNote()">Save Entry</button>
-            <div id="journalNotesList" style="margin-top:20px;"></div>
-        </div>
-    </div>
-
-    <!-- Mosque View -->
-    <div id="view-mosque" class="sub-view">
-        <div class="sub-header">
-            <button onclick="closeSubView()"><i class="fa-solid fa-arrow-left"></i> Back</button>
-            <h3>Nearby Mosques</h3>
-        </div>
-        <div style="padding:20px; text-align:center;">
-            <i class="fa-solid fa-mosque" style="font-size:50px; color:#10b981; margin-bottom:15px;"></i>
-            <p>Find mosques near <span class="city-display-name">Chuadanga</span></p>
-            <button class="action-btn" style="margin-top:20px;" onclick="searchMosquesMap()">Open Maps</button>
-        </div>
-    </div>
-
-    <!-- Location Modal -->
-    <div id="locationModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Select Location</h3>
-                <span class="close-btn" onclick="closeLocationModal()">&times;</span>
-            </div>
-            <div class="search-box">
-                <input type="text" id="citySearchInput" placeholder="Enter city (e.g. Chuadanga, Dhaka)">
-                <button onclick="searchCity()"><i class="fa-solid fa-magnifying-glass"></i></button>
-            </div>
-            <div class="gps-btn" onclick="useCurrentLocation()">
-                <i class="fa-solid fa-location-arrow"></i> Use GPS Location
-            </div>
-            <div id="location-error" style="color:#ef4444; font-size:0.85rem; margin-top:10px; display:none;"></div>
-        </div>
-    </div>
-
-    <!-- Bottom Navigation Bar -->
-    <nav class="bottom-nav">
-        <button class="nav-btn active" onclick="switchTab('home', this)">
-            <i class="fa-solid fa-house"></i>
-            <span>Home</span>
-        </button>
-        <button class="nav-btn" onclick="switchTab('prayers', this)">
-            <i class="fa-solid fa-person-praying"></i>
-            <span>Prayers</span>
-        </button>
-        <button class="nav-btn" onclick="switchTab('quran', this)">
-            <i class="fa-solid fa-book-quran"></i>
-            <span>Quran</span>
-        </button>
-    </nav>
 
     <script src="script.js"></script>
 </body>
